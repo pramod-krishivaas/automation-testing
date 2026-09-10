@@ -10,10 +10,10 @@ a home screen by PRIORITY —
 you *land* on is not necessarily the app you want to *test*. This module:
 
   1. detect_landed_app()  — reads role-unique `home_markers` to identify which
-     app's home the shared login actually landed on.
-  2. switch_to_app()      — if the landed app != the target role selected in the
-     UI, opens the in-app switch toggle and switches to the target, then re-detects
-     to confirm.
+     app's home the shared login actually landed on. Called ONCE after login.
+  2. switch_to_app()      — given that detected `landed` app: if it already equals
+     the target role selected in the UI, run directly; otherwise open the in-app
+     switch toggle and switch to the target. The switch itself never re-detects.
 
 Locators come from `unified_app.json` → `switch_control` and `home_markers`, bound
 onto the test class by `pages/common/login_page.load_locators_once`.
@@ -93,7 +93,12 @@ def detect_landed_app(driver, obj, timeout=10, probe_timeout=2):
                 return role
         time.sleep(1)
 
-    print(f"[switch] Could not detect landed app within {role} - {configured.get(role)} - {ROLE_LABELS.get(role, role)} {timeout}s.")
+    print(f"[switch] Could not detect landed app within {timeout}s. Probed these "
+          f"home_markers (unified_app.json): {configured}")
+    # Dump what's actually on screen so the real chip text is visible — the usual
+    # cause of a None here is a home_marker that doesn't match the rendered text
+    # (e.g. whitespace/label drift). Compare 'On-screen now' against the markers.
+    _log_visible_text(driver)
     return None
 
 
@@ -114,17 +119,20 @@ def _log_visible_text(driver, limit=12):
         print(f"[switch] Could not read on-screen text: {e}")
 
 
-def switch_to_app(driver, obj, target_role, test_flow_steps=None):
+def switch_to_app(driver, obj, target_role, test_flow_steps=None, landed=None):
     """
     Switch the unified app to `target_role`, then return so the target's test suite
     runs directly.
 
-    By design this performs NO landed-app detection — neither before nor after the
-    switch. The in-app switcher is opened and the target app selected unconditionally,
-    then we hand control straight back to the test. That removes any dependency on
-    `home_markers` (which need not be configured) and the slow post-switch re-detect;
-    a number that only ever reaches the target lands there anyway, and selecting the
-    "Current App" entry in the switcher is a harmless no-op.
+    By design this performs NO landed-app detection of its own — detection happens
+    ONCE right after login and its result is passed in here as `landed`:
+
+      • landed == target_role → already on the target, nothing to switch; run directly.
+      • otherwise             → open the in-app switcher and select the target.
+
+    The switch itself never re-detects (no dependency on `home_markers`, no slow
+    post-switch probe); selecting the "Current App" entry would be a harmless no-op
+    anyway, so an unknown `landed` (None) just falls through to a normal switch.
 
     • target_role falsy → nothing to switch, returns True.
     """
@@ -135,7 +143,16 @@ def switch_to_app(driver, obj, target_role, test_flow_steps=None):
     if target_role not in ROLE_PRIORITY:
         pytest.fail(f"[switch] Unknown target_role '{target_role}'. Expected one of {ROLE_PRIORITY}.")
 
-    print(f"[switch] Switching to target app '{target_role}' via toggle (no detection)…")
+    # Detected after login (passed in) — if we already landed on the target, there is
+    # nothing to switch. We never detect INSIDE this function.
+    if landed and landed == target_role:
+        _log_step(
+            test_flow_steps,
+            f"Already on target app '{ROLE_LABELS.get(target_role, target_role)}' (detected after login; no switch needed)",
+        )
+        return True
+
+    print(f"[switch] Landed on '{landed}', switching to target app '{target_role}' via toggle (no detection)…")
 
     # 1. Open the in-app switcher.
     if not obj.switch_toggle_button_xpath:

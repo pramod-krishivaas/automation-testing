@@ -28,10 +28,10 @@
     "target_state_client": "//android.view.ViewGroup[contains(@content-desc, \"Supervisor - State\")]"
   },
   "home_markers": {
-    "_note": "Role-exclusive text on each home header chip. CONFIRMED live: regular_farmer='Farmer', state_farmer='State Farmer'. The client/supervisor home labels are not yet captured (fill when a client number is available).",
-    "regular_farmer": "//android.widget.TextView[@text=\" Farmer\"]",
-    "regular_client": "//android.widget.TextView[@text=\"Field Agent\"]",
-    "state_farmer": "//android.widget.TextView[@text=\"State Farmer\"]",
-    "state_client": "//android.widget.TextView[@text=\"Field Agent\"]"
+    "_note": "Role-exclusive text on each home header chip. Uses normalize-space() so leading/trailing whitespace on the chip (e.g. an icon glyph rendering as ' Farmer') doesn't break the match, while staying mutually exclusive (normalize-space 'State Farmer' != 'Farmer'). CONFIRMED live: regular_farmer='Farmer', state_farmer='State Farmer'. WARNING: regular_client and state_client BOTH read 'Field Agent' — detection cannot tell them apart; capture a role-unique client marker.",
+    "regular_farmer": "//android.widget.TextView[normalize-space(@text)=\"Farmer\"]",
+    "regular_client": "//android.widget.TextView[normalize-space(@text)=\"Field Agent\"]",
+    "state_farmer": "//android.widget.TextView[normalize-space(@text)=\"State Farmer\"]",
+    "state_client": "//android.widget.TextView[normalize-space(@text)=\"Field Agent\"]"
   }
 }

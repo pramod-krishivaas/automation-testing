@@ -60,7 +60,10 @@ const APP_TEST_CONFIG = {
         test_type: {
             "Smoke":      { Login: COMMON_LOGIN },
             "Regression": { Login: COMMON_LOGIN },
-            "End-to-End": { Login: COMMON_LOGIN },
+            "End-to-End": { 
+                Login: COMMON_LOGIN, 
+                Onboarding: "tests/test_suites/end_to_end/state_client/test_onboarding_pytest.py" 
+            },
             "Sanity":     { Login: COMMON_LOGIN },
         },
     },
@@ -264,20 +267,26 @@ const ReadyTestCases = ({ modules }) => {
  * ─────────────────────────────────────────────────────────────────────────── */
 const TYPE_FOLDER_NAME = { 'Smoke': 'smoke', 'Regression': 'regression', 'End-to-End': 'end_to_end', 'Sanity': 'sanity' };
 
-const TestTypeCases = ({ selectedTestTypes, applicationId }) => {
+const TestTypeCases = ({ selectedTestTypes, applicationId, appVariantId }) => {
     const [byType, setByType] = useState({});
     const [loading, setLoading] = useState(false);
-    const key = selectedTestTypes.join(',') + '|' + (applicationId || '');
+    const key = selectedTestTypes.join(',') + '|' + (applicationId || '') + '|' + (appVariantId || '');
 
     useEffect(() => {
         if (!selectedTestTypes.length) { setByType({}); return; }
         setLoading(true);
         Promise.all(selectedTestTypes.map(async (t) => {
-            const [folder, tagged] = await Promise.all([
+            const [folderAll, tagged] = await Promise.all([
                 catalogService.discoverTypeFolderTests(t).catch(() => []),
                 testCaseService.listTestCases({ test_type: t, application_id: applicationId || undefined, page_size: 100 })
                     .then((r) => r.items || []).catch(() => []),
             ]);
+            // test_suites/<type>/ holds a subfolder per app; keep only the SELECTED
+            // app_variant's tests (plus shared `common`/unlabelled ones that run for
+            // every app), so this panel matches the app chosen above.
+            const folder = (folderAll || []).filter(
+                (f) => !appVariantId || f.app === appVariantId || f.app === 'common' || !f.app
+            );
             return [t, { folder, tagged }];
         })).then((entries) => { setByType(Object.fromEntries(entries)); setLoading(false); });
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1035,7 +1044,7 @@ function TestScreen({ onHistoryUpdate }) {
                     {/* Test cases catalogued for the selected + matched modules */}
                     <div className="grid-item-flo">
                         <ReadyTestCases modules={modules} />
-                        <TestTypeCases selectedTestTypes={selectedTestTypes} applicationId={selectedAppKey} />
+                        <TestTypeCases selectedTestTypes={selectedTestTypes} applicationId={selectedAppKey} appVariantId={resolvedVariantId} />
                     </div>
 
                     {/* Network Config */}

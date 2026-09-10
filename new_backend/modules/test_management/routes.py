@@ -6,25 +6,77 @@ Prefix ("/api") is applied once at inclusion time in new_backend/main.py,
 matching every other router there.
 """
 
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, File, Form, Response, UploadFile, status
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from new_backend.modules.test_management import models as schemas
 from new_backend.modules.test_management import service
-from new_backend.modules.test_management.database import get_db
+from new_backend.modules.test_management.database import SessionLocal, get_db
 
 router = APIRouter()
 
 
 # ── Applications ─────────────────────────────────────────────────────────
+# Hardcoded fallback for the unified app's four roles. Served when the MySQL
+# database is unreachable (e.g. running this backend on a machine that is NOT the
+# DB host → "Access denied for user 'automation_user'@'localhost'"), so the app
+# dropdown still populates off-machine. Mirrors the real rows: `variant` is the
+# authoritative UI→automation key; ids/names match the seeded DB. Keep in sync if
+# the real Applications table changes.
+_SEED_TS = datetime(2026, 1, 1, tzinfo=timezone.utc)
+_HARDCODED_APPLICATIONS = [
+    {"application_id": 1, "application_name": "Unified Regular Client App", "platform": "Android",
+     "package_name": "com.agribride.krishivaas.client_app", "variant": "regular_client",
+     "description": "Hardcoded (DB offline)", "status": True, "created_at": _SEED_TS, "updated_at": _SEED_TS},
+    {"application_id": 3, "application_name": "Unified Regular Farmer", "platform": "Android",
+     "package_name": "com.agribride.krishivaas.farmer_app", "variant": "regular_farmer",
+     "description": "Hardcoded (DB offline)", "status": True, "created_at": _SEED_TS, "updated_at": _SEED_TS},
+    {"application_id": 4, "application_name": "Unified Telangana Client App", "platform": "Android",
+     "package_name": "com.agribride.krishivaas.client_state_app", "variant": "state_client",
+     "description": "Hardcoded (DB offline)", "status": True, "created_at": _SEED_TS, "updated_at": _SEED_TS},
+    {"application_id": 2, "application_name": "Unified Telangana Farmer", "platform": "Android",
+     "package_name": "com.agribride.krishivaas.farmer_state_app", "variant": "state_farmer",
+     "description": "Hardcoded (DB offline)", "status": True, "created_at": _SEED_TS, "updated_at": _SEED_TS},
+]
+
+
+def _hardcoded_applications_response(page: int, page_size: int) -> dict:
+    apps = _HARDCODED_APPLICATIONS
+    total = len(apps)
+    page = max(1, page)
+    page_size = max(1, page_size)
+    start = (page - 1) * page_size
+    items = apps[start:start + page_size]
+    total_pages = (total + page_size - 1) // page_size
+    return {"items": items, "total": total, "page": page, "page_size": page_size, "total_pages": total_pages}
+
+
 @router.post("/applications", response_model=schemas.ApplicationRead, status_code=status.HTTP_201_CREATED)
 def create_application(payload: schemas.ApplicationCreate, db: Session = Depends(get_db)):
     return service.create_application_flow(payload, db)
 
 
 @router.get("/applications", response_model=schemas.PaginatedResponse[schemas.ApplicationRead])
-def list_applications(status: bool | None = None, q: str | None = None, page: int = 1, page_size: int = 20, db: Session = Depends(get_db)):
-    return service.list_applications_flow(status, q, page, page_size, db)
+def list_applications(status: bool | None = None, q: str | None = None, page: int = 1, page_size: int = 20):
+    """
+    List applications. Manages its own session (not Depends(get_db)) so a DB outage
+    is fully contained here: if MySQL is unreachable, serve the hardcoded list so the
+    UI dropdown keeps working instead of 500-ing.
+    """
+    db = SessionLocal()
+    try:
+        return service.list_applications_flow(status, q, page, page_size, db)
+    except SQLAlchemyError as exc:
+        print(f"[applications] DB unavailable ({exc.__class__.__name__}); serving hardcoded application list.")
+        return _hardcoded_applications_response(page, page_size)
+    finally:
+        try:
+            db.close()
+        except Exception:
+            pass
 
 
 @router.get("/applications/{application_id}", response_model=schemas.ApplicationRead)

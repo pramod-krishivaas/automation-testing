@@ -1,73 +1,133 @@
 {
-  "login_screen": {
-    "next_button_language_login": "//android.view.ViewGroup[@content-desc=\"Next\"]",
-    "allow_notifications_button": "//android.widget.Button[@resource-id=\"com.android.permissioncontroller:id/permission_allow_button\"]",
-    "tab_email_login": "//android.view.ViewGroup[@content-desc=\"Email\"]",
-    "next_button_login": "//android.view.ViewGroup[@content-desc=\"Next\"]",
-    "verify_button_login": "//android.view.ViewGroup[@content-desc=\"Verify OTP\"]",
-    "email_input": "//android.widget.EditText[@content-desc=\"email input field, mandatory\"]",
-    "password_input": "//android.widget.EditText[@content-desc=\"password input field, mandatory\"]",
-    "submit_login_button": "//android.view.ViewGroup[@content-desc=\"Login\"]",
-    "allow_location_button": "//android.widget.Button[@resource-id=\"com.android.permissioncontroller:id/permission_allow_foreground_only_button\"]",
-    "allow_audio_button": "//android.widget.Button[@resource-id=\"com.android.permissioncontroller:id/permission_allow_foreground_only_button\"]",
-    "allow_picture_button": "/android.widget.Button[@resource-id=\"com.android.permissioncontroller:id/permission_allow_foreground_only_button\"]"
+  "accessibility_ids": {
+    "dashboard_screen": {
+      "add_button_dashboard": "Add",
+      "add_new_farmer_option": "Add New Farmer",
+      "farm_village_dropdown_button": "Farm Village dropdown",
+      "farm_village_item": "Jaggaram (2710003)",
+      "download_boundary_button": "download_boundary_button",
+      "search_by_bunds_results": "search_by_bunds_results",
+      "only_add_farmer_button": "only_add_farmer_button",
+      "submit_button_farm_villages": "Submit",
+      "search_by_bunds_lat_long_option": "search_by_bunds_lat_long_option",
+      "select_bund": "(//android.view.View[@content-desc=\"Map Marker\"])[4]",
+      "confirm_bunds_selection_button": "Confirm Boundary",
+      "select_survey_button": "select_survey_button",
+      "search_by_survey_number_option": "search_by_survey_number_option"
+    },
+    "add_farmer_screen": {
+      "add_farmer_name": "Farmer Name input field, mandatory",
+      "add_farmer_phone": "Phone Number input field, mandatory",
+      "business_unit_dropdown": "(//android.widget.TextView[@text=\"\"])[1]",
+      "search_business_unit": "//android.widget.Button[@content-desc=\"Please select a business unit\"]",
+      "field_agent_dropdown": "(//android.widget.TextView[@text=\"\"])[2]",
+      "submit_button_add_farmer": "Submit",
+      "cancel_button_add_farmer": "Cancel"
+    },
+    "add_crop_screen": {
+      "crop_name_dropdown": "Crop Name dropdown",
+      "crop_name": "//android.view.ViewGroup[contains(@content-desc,'Bengal Gram')]",
+      "short_duration_button": "//android.view.ViewGroup[@content-desc=\"Short (90 Days)\"]",
+      "long_duration_button": "//android.view.ViewGroup[@content-desc=\"Medium (120 Days)\"]",
+      "medium_duration_button": "//android.view.ViewGroup[@content-desc=\"Long (150 Days)\"]",
+      "direct_sowing_button": "//android.widget.TextView[@text=\"Direct Sowing\"]",
+      "transplanted_button": "//android.view.ViewGroup[@content-desc=\"Transplanted\"]",
+      "submit_crop_button": "Submit",
+      "sowing_date": "(//android.widget.TextView[@text=\"\"])[2]",
+      "calendar_ok_button": "//android.widget.Button[@resource-id=\"android:id/button1\"]",
+      "transplanted_date": "(//android.widget.TextView[@text=\"\"])[1]",
+      "plantation_date": "Plantation Date *, --/--/----, "
+    }
   },
-  "dashboard_screen": {
-    "add_button_dashboard": "//android.widget.Button[@content-desc=\"Add\"]",
-    "add_new_farmer_option": "//android.view.ViewGroup[@content-desc=\"Add New Farmer\"]/android.view.ViewGroup"
+  "element_ids": {
+    "dashboard_screen": {
+      "add_button_dashboard": "add_button_dashboard",
+      "add_new_farmer_option": "add_new_farmer_option",
+      "farm_village_dropdown_button": "farm-village-dropdown",
+      "farm_village_item": "farm-village-jaggaram-2710003",
+      "download_boundary_button": "download_boundary_button",
+      "search_by_bunds_results": "search_by_bunds_results",
+      "only_add_farmer_button": "only_add_farmer_button",
+      "submit_button_farm_villages": "submit-input",
+      "search_by_bunds_lat_long_option": "search_by_bunds_lat_long_option",
+      "select_bund": "(//android.view.View[@content-desc=\"Map Marker\"])[4]",
+      "confirm_bunds_selection_button": "confirm_bunds_selection_button",
+      "select_survey_button": "select_survey_button",
+      "search_by_survey_number_option": "search_by_survey_number_option"
+    },
+    "add_farmer_screen": {
+      "add_farmer_name": "farmer-name-input",
+      "add_farmer_phone": "phone-number-input",
+      "business_unit_dropdown": "(//android.widget.TextView[@text=\"\"])[1]",
+      "search_business_unit": "//android.widget.Button[@content-desc=\"Please select a business unit\"]",
+      "field_agent_dropdown": "(//android.widget.TextView[@text=\"\"])[2]",
+      "submit_button_add_farmer": "submit-input",
+      "cancel_button_add_farmer": "cancel-input"
+    },
+    "add_crop_screen": {
+      "crop_name_dropdown": "crop-name-dropdown",
+      "crop_name": "//android.view.ViewGroup[contains(@content-desc,'Bengal Gram')]",
+      "short_duration_button": "//android.view.ViewGroup[@content-desc=\"Short (90 Days)\"]",
+      "long_duration_button": "//android.view.ViewGroup[@content-desc=\"Medium (120 Days)\"]",
+      "medium_duration_button": "//android.view.ViewGroup[@content-desc=\"Long (150 Days)\"]",
+      "direct_sowing_button": "//android.widget.TextView[@text=\"Direct Sowing\"]",
+      "transplanted_button": "//android.view.ViewGroup[@content-desc=\"Transplanted\"]",
+      "submit_crop_button": "submit-input",
+      "sowing_date": "(//android.widget.TextView[@text=\"\"])[2]",
+      "calendar_ok_button": "//android.widget.Button[@resource-id=\"android:id/button1\"]",
+      "transplanted_date": "(//android.widget.TextView[@text=\"\"])[1]",
+      "plantation_date": "plantation-date-date-picker"
+    }
   },
-  "farmer_screen": {
-    "farmer_name_input": "//android.widget.EditText[@content-desc=\"Farmer Name input field, mandatory\"]",
-    "farmer_mobile_input": "//android.widget.EditText[@content-desc=\"Phone Number input field, mandatory\"]",
-    "business_unit_dropdown": "//android.widget.Button[@content-desc=\"Business Unit dropdown\"]",
-    "business_unit_option_1": "//android.widget.TextView[contains(@text, 'Testteam')]",
-    "field_agent_dropdown": "//android.widget.Button[@content-desc=\"Field Agent dropdown\"]",
-    "field_agent_option_1": "//android.widget.TextView[contains(@text, 'bu1 fa1')]",
-    "submit_farmer_button": "//android.view.ViewGroup[@content-desc=\"Submit\"]",
-    
-    "_COMMENT_1": "--- FARM KEYS ---",
-    "draw_on_map_button": "//*[contains(@text, 'Draw on map') or contains(@content-desc, 'Draw on map')]",
-    "farm_name_input": "//android.widget.EditText[@content-desc=\"Farm Name input field, mandatory\"]",
-    "acreage_input": "//android.widget.EditText[@content-desc=\"Acreage input field\"]",
-    "land_unit_input": "//android.widget.TextView[@text=\"Acre\"]",
-    "cancel_button": "//android.widget.TextView[@text=\"Cancel\"]",
-    "submit_button": "//android.widget.TextView[@text=\"Submit\"]",
-    "save_approve_button": "//android.widget.Button[@text=\"Save & Approve\"]",
-
-    "_COMMENT_2": "--- CROP KEYS (UPDATED) ---",
-    "crop_name_input": "//android.widget.TextView[@text=\"Search Crop Name\"]",
-    "areca_nut_item": "//*[contains(@text, 'Areca Nut')]",
-    
-    "_COMMENT_3": "--- INTER-CROP KEYS (ADDED) ---",
-    "inter_crop_input": "//android.widget.TextView[@text=\"Search Inter Crop Name\"]",
-    "bananas_item": "//*[contains(@text, 'Bananas')]",
-    "inter_sowing_date_input": "//android.widget.TextView[@text=\"Inter-Crop Sowing Date\"]",
-    
-    "_COMMENT_4": "--- CROP DETAILS (ADDED) ---",
-    "short_duration_button": "//android.view.ViewGroup[@content-desc=\"Short, 140 Days\"]",
-    "medium_duration_button": "//android.view.ViewGroup[@content-desc=\"Medium, 120 Days\"]",
-    "long_duration_button": "//android.view.ViewGroup[@content-desc=\"Long, 150 Days\"]",
-    "direct_sowing_btn": "//android.view.ViewGroup[@content-desc=\"Direct Sowing\"]",
-    "transplanted_button": "//android.view.ViewGroup[@content-desc=\"Transplanted\"]",
-    
-    "sowing_date_input": "//android.view.ViewGroup[@content-desc=\"Sowing Date *, --/--/----, \"]",
-    "transplanted_date_input": "//android.view.ViewGroup[@content-desc=\"Transplanted Date *, --/--/----, \"]",
-    "harvest_date_input": "//*[contains(@text, 'Harvest Date')]",
-    "calendar_ok_btn": "//android.widget.Button[@resource-id=\"android:id/button1\"]",
-    "submit_crop_btn": "//android.widget.TextView[@text=\"Submit\"]"
-  },
-  "coordinates": {
-    "login_screen": {
-      "next_button_language_login": [540, 2100],
-      "allow_picture_button": [540, 1500],
-      "allow_location_button": [540, 1500],
-      "allow_audio_button": [540, 1500],
-      "allow_notifications_button": [540, 1500],
-      "next_button_login": [540, 2100],
-      "verify_button_login": [540, 2100]
+  "xpath_locators": {
+    "dashboard_screen": {
+      "add_button_dashboard": "//android.view.ViewGroup[@content-desc=\"Add\"]",
+      "add_new_farmer_option": "//android.view.ViewGroup[@content-desc=\"Add New Farmer\"]",
+      "farm_village_dropdown_button": "//android.widget.TextView[@text=\"\"]",
+      "farm_village_item": "//android.view.ViewGroup[@content-desc=\"Jaggaram (2710003)\"]",
+      "download_boundary_button": "//android.widget.TextView[@text=\"⬇ Download Boundary\"]",
+      "search_by_bunds_results": "//android.widget.TextView[contains(@text,'20')]",
+      "only_add_farmer_button": "//android.view.ViewGroup[@content-desc='Only add farmer']",
+      "submit_button_farm_villages": "//android.view.ViewGroup[@content-desc=\"Submit\"]",
+      "search_by_bunds_lat_long_option": "//android.widget.EditText[@text=\"Search by bund, lat-long\"]",
+      "search_by_bunds_lat_long_input": "//android.view.ViewGroup[@content-desc=\"Bund: 580\"]",
+      "select_bund": "(//android.view.View[@content-desc=\"Map Marker\"])[4]",
+      "confirm_bunds_selection_button": "//android.view.ViewGroup[@content-desc=\"Confirm Boundary\"]",
+      "select_survey_button": "//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[1]/android.view.ViewGroup[1]",
+      "search_by_survey_number_option": "//android.widget.EditText[@text=\"Search by survey, lat-long\"]"
+    },
+    "add_farmer_screen": {
+      "add_farmer_name": "//android.widget.EditText[@content-desc=\"Farmer Name input field, mandatory\"]",
+      "add_farmer_phone": "//android.widget.EditText[@content-desc=\"Phone Number input field, mandatory\"]",
+      "business_unit_dropdown": "(//android.widget.TextView[@text=\"\"])[1]",
+      "search_business_unit": "//android.widget.Button[@content-desc=\"Please select a business unit\"]",
+      "field_agent_dropdown": "(//android.widget.TextView[@text=\"\"])[2]",
+      "submit_button_add_farmer": "//android.view.ViewGroup[@content-desc=\"Submit\"]",
+      "cancel_button_add_farmer": "//android.view.ViewGroup[@content-desc=\"Cancel\"]"
     },
     "add_farm_screen": {
-       "draw_on_map_button": [540, 1200]
+      "farm_name_input": "//android.widget.EditText[@content-desc=\"Farm Name input field, mandatory\"]",
+      "acreage_input": "//android.widget.EditText[@content-desc=\"Acreage input field\"]",
+      "land_unit_input": "//android.widget.TextView[@text=\"Acre\"]",
+      "cancel_button": "//android.widget.TextView[@text=\"Cancel\"]",
+      "submit_button": "//android.widget.TextView[@text=\"Submit\"]"
+    },
+    "add_crop_screen": {
+      "crop_name_dropdown": "//android.widget.Button[@content-desc=\"Crop Name dropdown\"]",
+      "crop_name": "//android.view.ViewGroup[contains(@content-desc,'Bengal Gram')]",
+      "short_duration_button": "//android.view.ViewGroup[@content-desc=\"Short (90 Days)\"]",
+      "long_duration_button": "//android.view.ViewGroup[@content-desc=\"Medium (120 Days)\"]",
+      "medium_duration_button": "//android.view.ViewGroup[@content-desc=\"Long (150 Days)\"]",
+      "direct_sowing_button": "//android.widget.TextView[@text=\"Direct Sowing\"]",
+      "transplanted_button": "//android.view.ViewGroup[@content-desc=\"Transplanted\"]",
+      "submit_crop_button": "//android.view.ViewGroup[@content-desc=\"Submit\"]",
+      "sowing_date": "(//android.widget.TextView[@text=\"\"])[2]",
+      "calendar_ok_button": "//android.widget.Button[@resource-id=\"android:id/button1\"]",
+      "transplanted_date": "(//android.widget.TextView[@text=\"\"])[1]",
+      "plantation_date": "//android.view.ViewGroup[@content-desc=\"Plantation Date *, --/--/----, \"]",
+      "inter_crop_dropdown": "//android.widget.TextView[@text=\"Search Inter Crop Name\"]",
+      "inter_crop_option": "//*[contains(@text, 'Bananas')]",
+      "inter_sowing_date_input": "//android.widget.TextView[@text=\"Inter-Crop Sowing Date\"]"
     }
   }
 }

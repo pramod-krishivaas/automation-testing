@@ -6,5 +6,37 @@
     {
         "step": "Click Add Farmer button",
         "status": "Success"
+    },
+    {
+        "step": "Click Farm village dropdown",
+        "status": "Success"
+    },
+    {
+        "step": "Click Farm village item",
+        "status": "Success"
+    },
+    {
+        "step": "Click Download Boundary button",
+        "status": "Success"
+    },
+    {
+        "step": "Click Submit village",
+        "status": "Success"
+    },
+    {
+        "step": "Enter '580' in Search by bunds/Latitude/Longitude field",
+        "status": "Success"
+    },
+    {
+        "step": "Click Search by bunds/Latitude/Longitude input",
+        "status": "Success"
+    },
+    {
+        "step": "Select bund from search results",
+        "status": "Success"
+    },
+    {
+        "step": "Confirm bunds selection",
+        "status": "Success"
     }
 ]

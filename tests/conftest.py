@@ -61,8 +61,14 @@ _PROJECT_ROOT = os.path.dirname(_THIS_DIR)
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
-from new_backend.modules.jira.jira_attachment import attach_screenshot
-from new_backend.modules.jira.jira_config import config
+try:
+    from tests.repo_paths import ensure_backend_importable
+except ImportError:                       # when tests/ (not repo root) is the entry
+    from repo_paths import ensure_backend_importable
+_BACKEND_ROOT = ensure_backend_importable()
+
+from app.modules.jira.jira_attachment import attach_screenshot
+from app.modules.jira.jira_config import config
 
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
@@ -403,7 +409,7 @@ def pytest_collection_modifyitems(config, items):
         from tests.test_type_config import type_folder_for_path
     except ImportError:                       # when tests/ (not repo root) is the entry
         from test_type_config import type_folder_for_path
-    from new_backend.modules.test_management.discovery import normalize_match_key
+    from app.modules.test_management.discovery import normalize_match_key
 
     # DB testcase_key -> {test_types} map, built LAZILY and once — and only if we
     # actually reach a non-folder test, so a folders-only run never touches MySQL.
@@ -414,8 +420,8 @@ def pytest_collection_modifyitems(config, items):
             return _db["by_key"]
         _db["loaded"] = True
         try:
-            from new_backend.modules.test_management.database import SessionLocal
-            from new_backend.modules.test_management.db_models import TestCase
+            from app.modules.test_management.database import SessionLocal
+            from app.modules.test_management.db_models import TestCase
             session = SessionLocal()
             try:
                 for key, types in session.query(TestCase.testcase_key, TestCase.test_types).all():
@@ -884,7 +890,7 @@ def notReportFailed(report):
     return report.outcome != "failed"
 
 
-# Make jira_integration importable from backend/
-backend_dir = os.path.join(os.path.dirname(__file__), "backend")
+# Make the backend package importable from the sibling backend repo.
+backend_dir = _BACKEND_ROOT
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)

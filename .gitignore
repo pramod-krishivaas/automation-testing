@@ -1,48 +1,30 @@
-*.apk
-*.apks
-/frontend/test-platform/node_modules/
-/backend/static/icons
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+venv/
+.venv/
+env/
+
+.env
+.env.local
+
 allure-results/
 allure-report/
-*.part
-# *.pyc
+artifacts/
+screenshots/
+reports/
+k6_scripts/
 
-# Logs
+*.apk
+*.apks
+*.part
+*.png
+
 logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-gh-pages-temp/
-node_modules
-dist
-dist-ssr
-*.local
 
-# Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# .gitignore
-__pycache__/
-*.pyc
-venv/
-.venv/
-env/
-.pytest_cache/
-screenshots/
-reports/
-artifacts/
-*.png
-.env
-.env.local
-k6_scripts/

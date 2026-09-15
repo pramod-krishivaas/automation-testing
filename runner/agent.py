@@ -1,18 +1,27 @@
-"""Connects this machine to the platform backend and runs its commands.
+"""Connects this laptop to the platform backend and runs its commands.
 
 Start it from the automation-testing repo root:
 
     python -m runner
 
-It dials OUT to BACKEND_URL over a WebSocket, so the laptop needs no public
-address, open port or tunnel, only internet access. It reconnects by itself
-after network drops and backend restarts or redeploys.
+or once per laptop, `runner\\install-autostart.ps1` makes Windows start it at
+every login. It dials OUT to BACKEND_URL over a WebSocket, so the laptop needs
+no public address, open port or tunnel, only internet access. It reconnects by
+itself after network drops and backend restarts or redeploys.
+
+The laptop shows up in the UI under RUNNER_NAME (default: its hostname). Several
+laptops can be connected at once; the UI picks which one runs a test.
 """
 
 import asyncio
 import json
+import os
+import re
 import socket
+import sys
 import time
+from pathlib import Path
+from typing import IO, Optional
 
 from websockets.asyncio.client import connect
 from websockets.exceptions import ConnectionClosed, InvalidStatus
@@ -27,13 +36,45 @@ if BACKEND_URL.startswith("https://"):
 else:
     WS_URL = "ws://" + BACKEND_URL.removeprefix("http://") + "/runner/ws"
 
+RUNNER_NAME = os.getenv("RUNNER_NAME") or socket.gethostname()
+STATE_DIR = Path.home() / ".test-automation-platform"
 HEARTBEAT_SECONDS = 3
 
 
+def _redirect_output_to_log() -> None:
+    # Set by the auto-start task, which runs the runner without a console.
+    path = os.getenv("RUNNER_LOG_FILE")
+    if path:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        sys.stdout = sys.stderr = open(path, "a", encoding="utf-8", buffering=1)
+
+
+def _claim_single_instance() -> Optional[IO]:
+    """Hold a per-name lock for the life of the process.
+
+    Two runners under one name (say, one started by hand next to the auto-start
+    task) would keep replacing each other's connection.
+    """
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    lock = open(STATE_DIR / f"runner-{re.sub(r'[^A-Za-z0-9_.-]', '_', RUNNER_NAME)}.lock", "a+")
+    lock.seek(0)
+    try:
+        if os.name == "nt":
+            import msvcrt
+            msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        lock.close()
+        return None
+    return lock
+
+
 async def serve() -> None:
-    async with connect(WS_URL, additional_headers={"X-Runner-Name": socket.gethostname()},
+    async with connect(WS_URL, additional_headers={"X-Runner-Name": RUNNER_NAME},
                        max_size=None, ping_interval=20, ping_timeout=20) as ws:
-        print(f"Connected to {BACKEND_URL}. Waiting for commands.", flush=True)
+        print(f"Connected to {BACKEND_URL} as '{RUNNER_NAME}'. Waiting for commands.", flush=True)
         loop = asyncio.get_running_loop()
         send_lock = asyncio.Lock()
 
@@ -68,7 +109,7 @@ async def serve() -> None:
             await send(reply)
 
         handlers.set_event_sink(sink)
-        # Events from runs that ended while this machine was disconnected.
+        # Events from runs that ended while this laptop was disconnected.
         for name, payload in handlers.take_outbox():
             await asyncio.to_thread(handlers.emit, name, payload)
 
@@ -87,7 +128,15 @@ async def serve() -> None:
 
 
 def main() -> None:
-    print(f"Test runner for {BACKEND_URL}", flush=True)
+    _redirect_output_to_log()
+    lock = _claim_single_instance()
+    if lock is None:
+        # Exit 0 so the auto-start task doesn't treat this as a crash and retry.
+        print(f"A runner named '{RUNNER_NAME}' is already running on this laptop; not starting another.",
+              flush=True)
+        return
+
+    print(f"Test runner '{RUNNER_NAME}' for {BACKEND_URL}", flush=True)
     backoff = 1
     while True:
         try:

@@ -61,14 +61,7 @@ _PROJECT_ROOT = os.path.dirname(_THIS_DIR)
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
-try:
-    from tests.repo_paths import ensure_backend_importable
-except ImportError:                       # when tests/ (not repo root) is the entry
-    from repo_paths import ensure_backend_importable
-_BACKEND_ROOT = ensure_backend_importable()
-
-from app.modules.jira.jira_attachment import attach_screenshot
-from app.modules.jira.jira_config import config
+from runner.discovery import normalize_match_key
 
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
@@ -319,21 +312,11 @@ def _make_issue_id() -> str:
 
 
 def _fetch_developer_name_from_jira() -> str:
-    if not config.assignee_id:
-        return ""
-    if not config.url or not config.email or not config.api_token:
-        return ""
+    """The configured Jira assignee's display name, resolved by the backend, which holds the Jira credentials."""
     try:
-        from requests.auth import HTTPBasicAuth
-        resp = http_requests.get(
-            f"{config.url}/rest/api/3/user",
-            params={"accountId": config.assignee_id},
-            auth=HTTPBasicAuth(config.email, config.api_token),
-            headers={"Accept": "application/json"},
-            timeout=8,
-        )
-        if resp.status_code == 200:
-            name = (resp.json() or {}).get("displayName", "")
+        resp = http_requests.get(f"{BACKEND_URL}/test/jira/assignee-name", timeout=8)
+        if resp.ok:
+            name = (resp.json() or {}).get("name", "")
             if name:
                 print(f"[JIRA] Developer name resolved: {name}")
                 return name
@@ -395,8 +378,8 @@ def pytest_collection_modifyitems(config, items):
         and kept iff its catalogued test_types intersect the requested set.
 
     No --test-type → no filtering at all (full collection; backward compatible). If
-    MySQL is unreachable the DB-side check fails OPEN (keeps the test) so a transient
-    DB outage never silently drops shared/common tests.
+    the backend is unreachable the tag check fails OPEN (keeps the test) so a
+    transient outage never silently drops shared/common tests.
     """
     raw = config.getoption("--test-type", None)
     if not raw:
@@ -409,10 +392,9 @@ def pytest_collection_modifyitems(config, items):
         from tests.test_type_config import type_folder_for_path
     except ImportError:                       # when tests/ (not repo root) is the entry
         from test_type_config import type_folder_for_path
-    from app.modules.test_management.discovery import normalize_match_key
 
     # DB testcase_key -> {test_types} map, built LAZILY and once — and only if we
-    # actually reach a non-folder test, so a folders-only run never touches MySQL.
+    # actually reach a non-folder test, so a folders-only run never asks the backend.
     _db = {"loaded": False, "by_key": {}}
 
     def _db_types_by_key():
@@ -420,16 +402,12 @@ def pytest_collection_modifyitems(config, items):
             return _db["by_key"]
         _db["loaded"] = True
         try:
-            from app.modules.test_management.database import SessionLocal
-            from app.modules.test_management.db_models import TestCase
-            session = SessionLocal()
-            try:
-                for key, types in session.query(TestCase.testcase_key, TestCase.test_types).all():
-                    _db["by_key"][normalize_match_key(key)] = set(types or [])
-            finally:
-                session.close()
+            resp = http_requests.get(f"{BACKEND_URL}/api/test-cases/type-tags", timeout=10)
+            resp.raise_for_status()
+            for key, types in resp.json()["items"].items():
+                _db["by_key"][normalize_match_key(key)] = set(types or [])
         except Exception as e:
-            print(f"[test-type] DB lookup unavailable ({e}); shared/common tests won't be type-filtered.")
+            print(f"[test-type] Type tags unavailable from the backend ({e}); shared/common tests won't be type-filtered.")
         return _db["by_key"]
 
     kept, deselected = [], []
@@ -888,9 +866,3 @@ def pytest_sessionfinish(session, exitstatus):
 
 def notReportFailed(report):
     return report.outcome != "failed"
-
-
-# Make the backend package importable from the sibling backend repo.
-backend_dir = _BACKEND_ROOT
-if backend_dir not in sys.path:
-    sys.path.insert(0, backend_dir)

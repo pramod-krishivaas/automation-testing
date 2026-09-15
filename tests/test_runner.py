@@ -19,12 +19,6 @@ import threading
 import queue
 load_dotenv()
 
-try:
-    from tests.repo_paths import BACKEND_ROOT, ensure_backend_importable
-except ImportError:                       # when tests/ (not repo root) is the entry
-    from repo_paths import BACKEND_ROOT, ensure_backend_importable
-ensure_backend_importable()
-
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 CURRENT_PROC: Optional[subprocess.Popen] = None
 STOP_FLAG = False
@@ -85,7 +79,7 @@ def generate_report(project_root: Optional[str] = None) -> None:
     # found" — it's java that's missing). Inject the same Java/Android-aware env we
     # use for Appium so allure can find java.
     try:
-        from app.core.utils import build_tool_env
+        from runner.device import build_tool_env
         env = build_tool_env()
     except Exception:
         env = os.environ.copy()
@@ -256,15 +250,6 @@ def run_tests_and_get_suggestions(
     if network_config:
         apply_network_config_local(network_config)
 
-    # Inject the sibling backend repo into PYTHONPATH so `app.…` is importable by pytest
-    backend_dir = BACKEND_ROOT
-    existing_pythonpath = os.environ.get("PYTHONPATH", "")
-    os.environ["PYTHONPATH"] = (
-        backend_dir + os.pathsep + existing_pythonpath
-        if existing_pythonpath
-        else backend_dir
-    )
-
     if not os.path.exists(apk_path):
         send_log(f"APK not found at {apk_path}", "FAILED")
         return
@@ -404,11 +389,7 @@ def run_pytest_streaming_with_tracking(
     global CURRENT_PROC, STOP_FLAG
     project_root = os.path.dirname(os.path.dirname(__file__))
     
-    # Pass PYTHONPATH through to the subprocess so `app.…` is found
-    backend_dir = BACKEND_ROOT
     env = os.environ.copy()
-    existing = env.get("PYTHONPATH", "")
-    env["PYTHONPATH"] = backend_dir + os.pathsep + existing if existing else backend_dir
     env.update({
         "PYTHONIOENCODING": "utf-8",
         "PYTHONUTF8": "1",

@@ -22,12 +22,15 @@ load_dotenv()
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 CURRENT_PROC: Optional[subprocess.Popen] = None
 STOP_FLAG = False
+# The run this process is executing. Every log line and status update carries it,
+# so the UI can tell concurrent runs on different laptops apart.
+CURRENT_RUN_ID: Optional[str] = None
 
 RESULTS_DIR = "allure-results"
 REPORT_DIR = "allure-report"
 
 # --- Log queue + worker ---
-_LOG_Q: "queue.Queue[tuple[str, str]]" = queue.Queue(maxsize=5000)
+_LOG_Q: "queue.Queue[tuple[str, str, Optional[str]]]" = queue.Queue(maxsize=5000)
 _LOG_WORKER_STARTED = False
 
 
@@ -40,11 +43,11 @@ def _start_log_worker() -> None:
     def _worker() -> None:
         session = requests.Session()
         while True:
-            message, status = _LOG_Q.get()
+            message, status, run_id = _LOG_Q.get()
             try:
                 session.post(
                     f"{BACKEND_URL}/test/log-step",
-                    json={"message": message, "status": status},
+                    json={"message": message, "status": status, "run_id": run_id},
                     timeout=1,
                 )
             except Exception:
@@ -117,11 +120,11 @@ def notify_allure_open() -> None:
         pass
 
 
-def send_log(message: str, status: str = "INFO") -> None:
+def send_log(message: str, status: str = "INFO", run_id: Optional[str] = None) -> None:
     """Queue one log line for the frontend via /api/log-step (non-blocking)."""
     try:
         _start_log_worker()
-        _LOG_Q.put_nowait((message, status))
+        _LOG_Q.put_nowait((message, status, run_id or CURRENT_RUN_ID))
     except queue.Full:
         pass
     except Exception:
@@ -141,7 +144,7 @@ def send_module_status(module: str, status: str, message: str = ""):
     try:
         requests.post(
             f"{BACKEND_URL}/test/module-status",
-            json={"module": module, "status": status, "message": message},
+            json={"module": module, "status": status, "message": message, "run_id": CURRENT_RUN_ID},
             timeout=3,
         )
     except Exception:
@@ -240,8 +243,9 @@ def run_tests_and_get_suggestions(
     while tracking individual module statuses in real-time.
     Captures API test results and sends them to matrix API.
     """
-    global STOP_FLAG
+    global STOP_FLAG, CURRENT_RUN_ID
     STOP_FLAG = False
+    CURRENT_RUN_ID = run_id
 
     project_root = os.path.dirname(os.path.dirname(__file__))
     
@@ -320,7 +324,7 @@ def run_tests_and_get_suggestions(
         import requests as _req
         _req.post(
             f"{BACKEND_URL}/test/module-status",
-            json={"module": "__RUN_START__", "status": "start", "message": ""},
+            json={"module": "__RUN_START__", "status": "start", "message": "", "run_id": run_id},
             timeout=2,
         )
     except Exception:
@@ -370,7 +374,7 @@ def run_tests_and_get_suggestions(
             import requests as _req
             _req.post(
                 f"{BACKEND_URL}/test/run-complete",
-                json={"report_url": "http://localhost:8000/allure-report/index.html"},
+                json={"report_url": "http://localhost:8000/allure-report/index.html", "run_id": run_id},
                 timeout=3,
             )
         except Exception:
@@ -394,6 +398,8 @@ def run_pytest_streaming_with_tracking(
         "PYTHONIOENCODING": "utf-8",
         "PYTHONUTF8": "1",
         "PYTHONUNBUFFERED": "1",
+        # conftest tags its own log lines with this.
+        "PLATFORM_RUN_ID": CURRENT_RUN_ID or "",
     })
 
     cmd = [

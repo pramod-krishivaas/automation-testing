@@ -113,7 +113,6 @@ class TestOnboarding:
 
 def add_button(driver, obj, test_flow_steps):
     with allure.step("1. Click Add button"):
-        time.sleep(3)
         if not smart_click(
             driver, "Add button", obj.add_button_dashboard_xpath, "Add"
         ):
@@ -122,7 +121,6 @@ def add_button(driver, obj, test_flow_steps):
 
 def add_farmer_button(driver, obj, test_flow_steps):
     with allure.step("1. Click Add Farmer button"):
-        time.sleep(3)
         if not smart_click(
             driver, "Add Farmer button", obj.add_new_farmer_option_xpath, "Add Farmer"
         ):
@@ -131,7 +129,6 @@ def add_farmer_button(driver, obj, test_flow_steps):
 
 def add_farmer_name_input(driver, obj, test_flow_steps):
     with allure.step("1. Enter Farmer Name"):
-        time.sleep(3)
         if not smart_send_keys(
             driver, obj.add_farmer_name_xpath, "John Doe", element_name="Farmer Name input"
         ):
@@ -140,7 +137,6 @@ def add_farmer_name_input(driver, obj, test_flow_steps):
 
 def add_farmer_phone_input(driver, obj, test_flow_steps):
     with allure.step("1. Enter Farmer Phone"):
-        time.sleep(3)
         if not smart_send_keys(
             driver, obj.add_farmer_phone_xpath, generate_mobile_number(), element_name="Farmer Phone input"
         ):
@@ -149,7 +145,6 @@ def add_farmer_phone_input(driver, obj, test_flow_steps):
 
 def submit_button_add_farmer(driver, obj, test_flow_steps):
     with allure.step("1. Click Submit button on Add Farmer screen"):
-        time.sleep(3)
         if not smart_click(
             driver, "Submit button on Add Farmer screen", obj.submit_button_add_farmer_xpath, "Submit"
         ):
@@ -158,7 +153,6 @@ def submit_button_add_farmer(driver, obj, test_flow_steps):
 
 def farm_village_dropdown(driver, obj, test_flow_steps):
     with allure.step("1. Click Farm village dropdown"):
-        time.sleep(3)
         if not smart_click(
             driver, "Farm village dropdown", obj.farm_village_dropdown_button_xpath, "Farm village"
         ):
@@ -167,7 +161,6 @@ def farm_village_dropdown(driver, obj, test_flow_steps):
 
 def farm_village_item(driver, obj, test_flow_steps):
     with allure.step("1. Click Farm village item"):
-        time.sleep(3)
         if not smart_click(
             driver, "Farm village item", obj.farm_village_item_xpath, "Farm village item"
         ):
@@ -176,7 +169,6 @@ def farm_village_item(driver, obj, test_flow_steps):
 
 def download_boundary_button(driver, obj, test_flow_steps):
     with allure.step("1. Click Download Boundary button"):
-        time.sleep(3)
         if not smart_click(
             driver, "Download Boundary button", obj.download_boundary_button_xpath, "Download Boundary"
         ):
@@ -185,7 +177,6 @@ def download_boundary_button(driver, obj, test_flow_steps):
 
 def submit_village(driver, obj, test_flow_steps):
     with allure.step("1. Click Submit village"):
-        time.sleep(3)
         if not smart_click(
             driver, "Submit village", obj.submit_button_farm_villages_xpath, "Submit village"
         ):
@@ -198,7 +189,6 @@ def submit_village(driver, obj, test_flow_steps):
 
 def search_by_bunds_lat_long_option(driver, obj, test_flow_steps):
     with allure.step("1. Click Search by bunds/Latitude/Longitude option"):
-        time.sleep(3)
         if not smart_click(
             driver, "Search by bunds/Latitude/Longitude option", obj.search_by_bunds_lat_long_option_xpath, "Search by bunds/Latitude/Longitude"
         ):
@@ -207,7 +197,6 @@ def search_by_bunds_lat_long_option(driver, obj, test_flow_steps):
 
 def click_search_by_bunds_lat_long_input(driver, obj, test_flow_steps):
     with allure.step("1. Click Search by bunds/Latitude/Longitude input"):
-        time.sleep(3)
         if not smart_click(
             driver, "Search by bunds/Latitude/Longitude input", obj.search_by_bunds_lat_long_input_xpath, "Search by bunds/Latitude/Longitude"
         ):
@@ -216,7 +205,6 @@ def click_search_by_bunds_lat_long_input(driver, obj, test_flow_steps):
 
 def enter_search_by_bunds_lat_long_value(driver, obj, test_flow_steps, value="580"):
     with allure.step(f"1. Enter '{value}' in Search by bunds/Latitude/Longitude field"):
-        time.sleep(3)
         # smart_click can't type (it only clicks / OCR-taps), so grab the real element
         # and send keys into it.
         try:
@@ -244,7 +232,6 @@ def enter_search_by_bunds_lat_long_value(driver, obj, test_flow_steps, value="58
 
 def select_bund(driver, obj, test_flow_steps):
     with allure.step("1. Select bund from search results"):
-        time.sleep(3)
         if not smart_click(
             driver, "Select bund from search results", obj.select_bund_xpath, "Select bund from search results"
         ):
@@ -253,7 +240,6 @@ def select_bund(driver, obj, test_flow_steps):
 
 def confirm_bunds_selection_button(driver, obj, test_flow_steps):
     with allure.step("1. Confirm bunds selection"):
-        time.sleep(3)
         if not smart_click(
             driver, "Confirm bunds selection", obj.confirm_bunds_selection_button_xpath, "Confirm bunds selection"
         ):
@@ -266,7 +252,6 @@ def confirm_bunds_selection_button(driver, obj, test_flow_steps):
 
 def crop_name_dropdown(driver, obj, test_flow_steps):
     with allure.step("4. Click Crop Name dropdown"):
-        time.sleep(10)
         if not smart_click(
             driver, "Crop name dropdown", obj.crop_name_dropdown_xpath, "Select Crop Name"
         ):
@@ -276,7 +261,6 @@ def crop_name_dropdown(driver, obj, test_flow_steps):
 
 def crop_name_item(driver, obj, test_flow_steps):
     with allure.step("5. Select crop from dropdown (OCR)"):
-        time.sleep(2)
         if not smart_click(
             driver,
             "select crop from dropdown (OCR)",
@@ -292,7 +276,6 @@ def crop_name_item(driver, obj, test_flow_steps):
 
 def plantation_date(driver, obj, test_flow_steps):
     with allure.step("6. Click Plantation Date input"):
-        time.sleep(2)
         if not smart_click(
             driver,
             "Plantation date input",
@@ -307,7 +290,6 @@ def plantation_date(driver, obj, test_flow_steps):
 
 def transplanted_date(driver, obj, test_flow_steps):
     with allure.step("7. Click Transplanted Date input"):
-        time.sleep(2)
         if not smart_click(
             driver,
             "Transplanted date input",
@@ -322,7 +304,6 @@ def transplanted_date(driver, obj, test_flow_steps):
 
 def intercrop_name(driver, obj, test_flow_steps):
     with allure.step("6. Click Inter-Crop Name input field"):
-        time.sleep(10)
         if not smart_click(
             driver, "Inter-Crop Name input", obj.intercrop_name_xpath, "Inter-Crop Name"
         ):
@@ -346,7 +327,6 @@ def intercrop_dropdown(driver, obj, test_flow_steps):
 
 def sowing_date_input(driver, obj, test_flow_steps):
     with allure.step("8. Click Sowing Date input"):
-        time.sleep(2)
         if not smart_click(
             driver,
             "Sowing date input",
@@ -386,7 +366,6 @@ def update_crop(driver, obj, test_flow_steps):
 
 def skip_crop(driver, obj, test_flow_steps):
     with allure.step("11. Click Skip to skip crop addition"):
-        time.sleep(2)
         if not smart_click(driver, "Skip crop addition", obj.skip_button_xpath, "Skip"):
             pytest.fail("Could not find or click the 'Skip' button.")
         test_flow_steps.append(
@@ -396,7 +375,6 @@ def skip_crop(driver, obj, test_flow_steps):
 
 def cancel_button(driver, obj, test_flow_steps):
     with allure.step("12. Click Cancel to cancel crop addition/editing"):
-        time.sleep(2)
         if not smart_click(
             driver, "Cancel crop addition/editing", obj.cancel_button_xpath, "Cancel"
         ):
@@ -421,7 +399,6 @@ def android_back(driver, obj, test_flow_steps):
 
 def three_dots_menu(driver, obj, test_flow_steps):
     with allure.step("14. Click Three Dots menu on farm card"):
-        time.sleep(5)
         if not smart_click(
             driver, "Three dots menu", obj.three_dots_xpath, "Three dots menu"
         ):
@@ -431,8 +408,6 @@ def three_dots_menu(driver, obj, test_flow_steps):
 
 def save_approve_boundary(driver, obj, test_flow_steps):
     with allure.step("15. Click Save boundary"):
-        time.sleep(5)
-
         wait = WebDriverWait(driver, 20)
         try:
             wait.until(
@@ -457,7 +432,6 @@ def save_approve_boundary(driver, obj, test_flow_steps):
 
 def hamburger_menu(driver, obj, test_flow_steps):
     with allure.step("16. Click Hamburger menu"):
-        time.sleep(5)
         if not smart_click(driver, "Hamburger menu", obj.hamburger_menu_xpath):
             print("hamburger_menu_xpath =", obj.hamburger_menu_xpath)
             pytest.fail("Could not find or click the 'Hamburger' menu.")
@@ -466,7 +440,6 @@ def hamburger_menu(driver, obj, test_flow_steps):
 
 def pending_farms_tab(driver, obj, test_flow_steps):
     with allure.step("17. Navigate to Pending Farms tab"):
-        time.sleep(5)
         if not smart_click(
             driver, "Pending Farms tab", obj.pending_farms_tab_xpath, "Pending Farms"
         ):
@@ -476,7 +449,6 @@ def pending_farms_tab(driver, obj, test_flow_steps):
 
 def type_dropdown(driver, obj, test_flow_steps):
     with allure.step("18. Click Type dropdown in Pending Farms"):
-        time.sleep(2)
         if not smart_click(
             driver, "Type dropdown", obj.type_dropdown_xpath, "Type dropdown"
         ):
@@ -488,7 +460,6 @@ def type_dropdown(driver, obj, test_flow_steps):
 
 def active_dropdown(driver, obj, test_flow_steps):
     with allure.step("19. Click Active dropdown in Pending Farms"):
-        time.sleep(2)
         if not smart_click(
             driver, "Active dropdown", obj.active_dropdown_xpath, "Active"
         ):
@@ -502,7 +473,6 @@ def active_dropdown(driver, obj, test_flow_steps):
 
 def historical_option(driver, obj, test_flow_steps):
     with allure.step("20. Select Historical option in Active dropdown"):
-        time.sleep(2)
         if not smart_click(
             driver, "Historical option", obj.historical_xpath, "Historical"
         ):
@@ -516,7 +486,6 @@ def historical_option(driver, obj, test_flow_steps):
 
 def cross_button(driver, obj, test_flow_steps):
     with allure.step("21. Click Cross button to clear filters in Pending Farms"):
-        time.sleep(2)
         if not smart_click(
             driver, "Cross button to clear filters", obj.cross_button_xpath, "Cross"
         ):
@@ -531,7 +500,6 @@ def cross_button(driver, obj, test_flow_steps):
 
 def all_dropdown(driver, obj, test_flow_steps):
     with allure.step("22. Click All dropdown in Pending Farms"):
-        time.sleep(2)
         if not smart_click(driver, "All dropdown", obj.all_dropdown_xpath, "All"):
             pytest.fail("Could not find or click the 'All' dropdown in Pending Farms.")
         test_flow_steps.append(
@@ -541,7 +509,6 @@ def all_dropdown(driver, obj, test_flow_steps):
 
 def only_farms_option(driver, obj, test_flow_steps):
     with allure.step("23. Select Only Farms option in All dropdown"):
-        time.sleep(2)
         if not smart_click(
             driver, "Only Farms option", obj.only_farms_xpath, "Only Farms"
         ):
@@ -555,7 +522,6 @@ def only_farms_option(driver, obj, test_flow_steps):
 
 def all_tab(driver, obj, test_flow_steps):
     with allure.step("24. Click All tab in Pending Farms"):
-        time.sleep(2)
         if not smart_click(driver, "All tab", obj.all_tab_xpath, "All"):
             pytest.fail("Could not find or click the 'All' tab in Pending Farms.")
         test_flow_steps.append(
@@ -565,7 +531,6 @@ def all_tab(driver, obj, test_flow_steps):
 
 def farm_card_three_dots(driver, obj, test_flow_steps):
     with allure.step("25. Click Three Dots menu on farm card in Pending Farms"):
-        time.sleep(5)
         if not smart_click(
             driver,
             "Three dots menu on farm card",
@@ -583,7 +548,6 @@ def farm_card_three_dots(driver, obj, test_flow_steps):
 
 def pending_farms_three_dots_menu(driver, obj, test_flow_steps):
     with allure.step("25. Click Three Dots menu on farm card in Pending Farms"):
-        time.sleep(10)
         if not smart_click(
             driver,
             "Three dots menu on farm card",
@@ -601,7 +565,6 @@ def pending_farms_three_dots_menu(driver, obj, test_flow_steps):
 
 def farms_with_no_crops_option(driver, obj, test_flow_steps):
     with allure.step("26. Select Farms With No Crops option in Type dropdown"):
-        time.sleep(2)
         if not smart_click(
             driver,
             "Farms with no crops option",
@@ -619,7 +582,6 @@ def farms_with_no_crops_option(driver, obj, test_flow_steps):
 
 def farms_with_no_boundary_option(driver, obj, test_flow_steps):
     with allure.step("27. Select Farms With No Boundary option in Type dropdown"):
-        time.sleep(2)
         if not smart_click(
             driver,
             "Farms with no boundary option",
@@ -637,7 +599,6 @@ def farms_with_no_boundary_option(driver, obj, test_flow_steps):
 
 def overview_option(driver, obj, test_flow_steps):
     with allure.step("28. Click Overview option in Three Dots menu"):
-        time.sleep(5)
         if not smart_click(driver, "Overview option", obj.Overview_xpath, "Overview"):
             pytest.fail(
                 "Could not find or click the 'Overview' option in the three dots menu."
@@ -649,7 +610,6 @@ def overview_option(driver, obj, test_flow_steps):
 
 def edit_farm(driver, obj, test_flow_steps):
     with allure.step("29. Click Edit Farm in Three Dots menu"):
-        time.sleep(5)
         if not smart_click(
             driver, "Edit farm (three dots menu)", obj.edit_farm_xpath, "Edit Farm"
         ):
@@ -663,7 +623,6 @@ def edit_farm(driver, obj, test_flow_steps):
 
 def delete_farm(driver, obj, test_flow_steps):
     with allure.step("30. Click Delete Farm in Three Dots menu"):
-        time.sleep(5)
         if not smart_click(
             driver,
             "Delete farm (three dots menu)",
@@ -680,7 +639,6 @@ def delete_farm(driver, obj, test_flow_steps):
 
 def add_crop(driver, obj, test_flow_steps):
     with allure.step("31. Click Add Crop in Three Dots menu"):
-        time.sleep(5)
         if not smart_click(
             driver, "Add crop (three dots menu)", obj.add_crop_xpath, "Add Crop"
         ):
@@ -694,7 +652,6 @@ def add_crop(driver, obj, test_flow_steps):
 
 def edit_crop(driver, obj, test_flow_steps):
     with allure.step("32. Click Edit Crop in Three Dots menu"):
-        time.sleep(5)
         if not smart_click(
             driver, "Edit crop (three dots menu)", obj.edit_crop_xpath, "Edit Crop"
         ):
@@ -708,7 +665,6 @@ def edit_crop(driver, obj, test_flow_steps):
 
 def delete_crop(driver, obj, test_flow_steps):
     with allure.step("33. Click Delete Crop in Three Dots menu"):
-        time.sleep(5)
         if not smart_click(
             driver,
             "Delete crop (three dots menu)",
@@ -725,7 +681,6 @@ def delete_crop(driver, obj, test_flow_steps):
 
 def add_boundary_from_three_dots(driver, obj, test_flow_steps):
     with allure.step("34. Click Add Boundary in Three Dots menu"):
-        time.sleep(5)
         if not smart_click(
             driver, "Add Boundary option", obj.add_boundary_xpath, "Add Boundary"
         ):
@@ -742,7 +697,6 @@ def add_boundary_from_three_dots(driver, obj, test_flow_steps):
 
 def edit_boundary_from_three_dots(driver, obj, test_flow_steps):
     with allure.step("35. Click Edit Boundary in Three Dots menu"):
-        time.sleep(5)
         if not smart_click(
             driver, "Edit Boundary option", obj.edit_boundary_xpath, "Edit Boundary"
         ):

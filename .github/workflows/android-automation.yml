@@ -1,0 +1,464 @@
+name: Android Automation
+
+# Triggered by Slack (repository_dispatch from a Slack app / the platform
+# backend) or by hand from the Actions tab. See ci/README.md for the payload.
+on:
+  repository_dispatch:
+    types: [android-automation]
+  workflow_dispatch:
+    inputs:
+      apk_url:
+        description: "Google Drive APK URL"
+        required: true
+        type: string
+      developer:
+        description: "Who triggered this build"
+        required: false
+        type: string
+      developer_slack_id:
+        description: "Slack user id (Uxxxx), for a real @mention in the result"
+        required: false
+        type: string
+      app_name:
+        required: false
+        type: string
+        default: Krishivaas
+      app_version:
+        required: false
+        type: string
+      build_id:
+        required: false
+        type: string
+      environment:
+        required: false
+        type: string
+        default: staging
+      app_variants:
+        description: "Comma-separated subset of ci/pipeline.yml variants (blank = all)"
+        required: false
+        type: string
+      suite_selection:
+        description: "Comma-separated suite types (blank = every type enabled in ci/pipeline.yml)"
+        required: false
+        type: string
+      emulator_device:
+        required: false
+        type: string
+      android_api_level:
+        required: false
+        type: string
+      slack_channel_id:
+        description: "Channel for the result (defaults to the SLACK_CHANNEL_ID variable)"
+        required: false
+        type: string
+
+# One automation run at a time: they share the emulator, the report store and
+# the APK workspace. A second trigger queues rather than cancelling (spec §25).
+concurrency:
+  group: android-automation
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "20"
+  JAVA_VERSION: "17"
+  APPIUM_PORT: "4723"
+  # Emulator defaults; a trigger can override device/API per run.
+  ANDROID_DEVICE: pixel_6
+  ANDROID_API_LEVEL: "34"
+  ANDROID_TARGET: google_apis
+  ANDROID_ARCH: x86_64
+
+jobs:
+  # ── 1. Parse the trigger, mint the RUN_ID, fetch and validate the APK ──────
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      run_id: ${{ steps.meta.outputs.run_id }}
+      app_name: ${{ steps.meta.outputs.app_name }}
+      app_version: ${{ steps.meta.outputs.app_version }}
+      apk_artifact: ${{ steps.meta.outputs.apk_artifact }}
+      metadata_artifact: ${{ steps.meta.outputs.metadata_artifact }}
+      apk_name: ${{ steps.apk.outputs.apk_name }}
+      package_name: ${{ steps.apk.outputs.package_name }}
+      emulator_device: ${{ steps.emulator.outputs.device }}
+      api_level: ${{ steps.emulator.outputs.api_level }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      # Only what the prepare scripts need — the full framework install happens
+      # in the test job, where it is actually used.
+      - name: Install prepare dependencies
+        run: pip install "gdown>=5.2.0" "androguard>=4.1.3" "PyYAML>=6.0"
+
+      - name: Parse trigger and generate RUN_ID
+        id: meta
+        env:
+          TRIGGER_PAYLOAD: ${{ github.event_name == 'repository_dispatch' && toJSON(github.event.client_payload) || toJSON(github.event.inputs) }}
+        run: python ci/prepare_run.py --out ci-out/metadata.json
+
+      - name: Download and validate the APK
+        id: apk
+        run: python ci/fetch_apk.py --metadata ci-out/metadata.json --dir apk
+
+      - name: Resolve emulator configuration
+        id: emulator
+        run: |
+          device=$(jq -r '.emulator_device // ""' ci-out/metadata.json)
+          api=$(jq -r '.android_api_level // ""' ci-out/metadata.json)
+          echo "device=${device:-$ANDROID_DEVICE}" >> "$GITHUB_OUTPUT"
+          echo "api_level=${api:-$ANDROID_API_LEVEL}" >> "$GITHUB_OUTPUT"
+
+      # Temporary transfer between jobs only — the cleanup job deletes it, and
+      # the 1-day retention is a backstop if the run dies before cleanup (§2/§20).
+      - name: Upload the APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.meta.outputs.apk_artifact }}
+          path: apk/
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Upload the run metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.meta.outputs.metadata_artifact }}
+          path: ci-out/metadata.json
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Tell Slack the run started
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ vars.SLACK_CHANNEL_ID }}
+        run: python ci/slack_notify.py --event started --metadata ci-out/metadata.json
+
+      - name: Report a failed preparation to Slack
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ vars.SLACK_CHANNEL_ID }}
+        run: |
+          python ci/slack_notify.py --event failed \
+            --metadata ci-out/metadata.json \
+            --category ENVIRONMENT_FAILURE \
+            --reason "The APK could not be prepared. Check the Drive link is shared with 'Anyone with the link'."
+
+  # ── 2. Emulator + Appium + the variant × suite matrix ─────────────────────
+  android-test:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    outputs:
+      status: ${{ steps.outcome.outputs.status }}
+      failure_category: ${{ steps.outcome.outputs.failure_category }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install the automation framework
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Appium and the UiAutomator2 driver
+        run: |
+          npm install -g appium@2
+          appium driver install uiautomator2
+          appium --version
+
+      - name: Download the APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.prepare.outputs.apk_artifact }}
+          path: apk
+
+      - name: Download the run metadata
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.prepare.outputs.metadata_artifact }}
+          path: ci-out
+
+      # The emulator needs hardware acceleration to be usable on a hosted runner.
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Locate the APK
+        id: apk
+        run: |
+          apk_path=$(ls apk/*.apk | head -1)
+          echo "path=$PWD/$apk_path" >> "$GITHUB_OUTPUT"
+          echo "Using $apk_path"
+
+      # The action owns the emulator lifecycle: create/boot/wait, run the script,
+      # then always kill it. ci/run_on_emulator.sh does the ADB verification, the
+      # install, Appium and the suites (spec §7).
+      - name: Run the Android suites
+        id: tests
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          APK_PATH: ${{ steps.apk.outputs.path }}
+          APP_PACKAGE: ${{ needs.prepare.outputs.package_name }}
+          APPIUM_PORT: ${{ env.APPIUM_PORT }}
+          OUT_DIR: ci-out
+          LOGIN_PHONE: ${{ secrets.LOGIN_PHONE }}
+          LOGIN_MPIN: ${{ secrets.LOGIN_MPIN }}
+          BACKEND_URL: ${{ vars.BACKEND_URL }}
+        with:
+          api-level: ${{ needs.prepare.outputs.api_level }}
+          target: ${{ env.ANDROID_TARGET }}
+          arch: ${{ env.ANDROID_ARCH }}
+          profile: ${{ needs.prepare.outputs.emulator_device }}
+          ram-size: 4096M
+          disk-size: 8G
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          script: bash ci/run_on_emulator.sh
+
+      - name: Classify the outcome
+        id: outcome
+        if: always()
+        run: |
+          status=UNKNOWN
+          category=""
+          if [ -f ci-out/summary.json ]; then
+            status=$(jq -r '.status // "UNKNOWN"' ci-out/summary.json)
+            category=$(jq -r '.failure_category // ""' ci-out/summary.json)
+          elif [ -f ci-out/failure-category ]; then
+            # The run never reached pytest: emulator, install or Appium failed.
+            category=$(cat ci-out/failure-category)
+            status="$category"
+          else
+            category=INFRASTRUCTURE_FAILURE
+            status=INFRASTRUCTURE_FAILURE
+          fi
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          echo "failure_category=$category" >> "$GITHUB_OUTPUT"
+          echo "Run status: $status  category: ${category:-none}"
+
+      - name: Upload the Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-${{ needs.prepare.outputs.run_id }}
+          path: allure-results
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Upload the run summary and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-summary-${{ needs.prepare.outputs.run_id }}
+          path: |
+            ci-out/summary.json
+            ci-out/appium.log
+            ci-out/logcat.txt
+            ci-out/install.log
+            ci-out/failure-category
+            screenshots
+            test-flows
+          retention-days: 14
+          if-no-files-found: warn
+
+  # ── 3. Allure report → GitHub Pages, under this RUN_ID ────────────────────
+  publish-report:
+    needs: [prepare, android-test]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write   # pushes the accumulated site to the gh-pages branch
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    outputs:
+      report_url: ${{ steps.publish.outputs.report_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - run: pip install "PyYAML>=6.0"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Install the Allure CLI
+        run: |
+          npm install -g allure-commandline
+          allure --version
+
+      # Everything already published. Missing on the very first run, which is
+      # why this may fail without failing the job.
+      - name: Check out the published reports
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: reports-site
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.prepare.outputs.metadata_artifact }}
+          path: ci-out
+
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: allure-results-${{ needs.prepare.outputs.run_id }}
+          path: allure-results
+
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: run-summary-${{ needs.prepare.outputs.run_id }}
+          path: ci-out
+
+      - uses: actions/configure-pages@v5
+        id: pages
+
+      - name: Add this run to the report site
+        id: publish
+        env:
+          REPORT_RETENTION_RUNS: ${{ vars.REPORT_RETENTION_RUNS }}
+        run: |
+          mkdir -p reports-site
+          python ci/publish_report.py \
+            --site reports-site \
+            --results allure-results \
+            --metadata ci-out/metadata.json \
+            --summary ci-out/summary.json \
+            --base-url "${{ steps.pages.outputs.base_url }}" \
+            --retention "${REPORT_RETENTION_RUNS:-0}"
+
+      # The branch is the durable store: Pages artifacts expire, past reports
+      # must not (spec §17).
+      - name: Save the site to the gh-pages branch
+        working-directory: reports-site
+        env:
+          RUN_ID: ${{ needs.prepare.outputs.run_id }}
+        run: |
+          if [ ! -d .git ]; then
+            git init -q
+            git remote add origin "${{ github.server_url }}/${{ github.repository }}.git"
+            git checkout -q -b gh-pages
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config http.https://github.com/.extraheader "AUTHORIZATION: basic $(printf 'x-access-token:%s' '${{ secrets.GITHUB_TOKEN }}' | base64 -w0)"
+          git add -A
+          git commit -q -m "Allure report for $RUN_ID" || echo "Nothing new to commit."
+          git push -q --force origin HEAD:gh-pages
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: reports-site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+  # ── 4. Slack result, with the exact report URL for this RUN_ID ────────────
+  notify:
+    needs: [prepare, android-test, publish-report]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.prepare.outputs.metadata_artifact }}
+          path: ci-out
+
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: run-summary-${{ needs.prepare.outputs.run_id }}
+          path: ci-out
+
+      - name: Send the result to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ vars.SLACK_CHANNEL_ID }}
+          CATEGORY: ${{ needs.android-test.outputs.failure_category }}
+          REPORT_URL: ${{ needs.publish-report.outputs.report_url }}
+        run: |
+          if [ -f ci-out/summary.json ]; then
+            python ci/slack_notify.py --event completed \
+              --metadata ci-out/metadata.json \
+              --summary ci-out/summary.json \
+              --report-url "$REPORT_URL"
+          else
+            python ci/slack_notify.py --event failed \
+              --metadata ci-out/metadata.json \
+              --category "${CATEGORY:-INFRASTRUCTURE_FAILURE}" \
+              --report-url "$REPORT_URL" \
+              --reason "The test job did not produce a result — the emulator, the APK install or Appium failed. See the workflow logs."
+          fi
+
+  # ── 5. Delete the temporary APK artifact, whatever happened ───────────────
+  cleanup:
+    needs: [prepare, android-test, publish-report, notify]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: write
+    steps:
+      - name: Delete the APK artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT: ${{ needs.prepare.outputs.apk_artifact }}
+        run: |
+          ids=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" --paginate \
+                --jq ".artifacts[] | select(.name==\"$ARTIFACT\") | .id")
+          if [ -z "$ids" ]; then
+            echo "No artifact named $ARTIFACT — nothing to delete."
+            exit 0
+          fi
+          for id in $ids; do
+            gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$id" \
+              && echo "Deleted APK artifact $ARTIFACT ($id)."
+          done

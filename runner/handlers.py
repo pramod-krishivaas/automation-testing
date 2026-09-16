@@ -65,12 +65,21 @@ def emit(name: str, payload: dict) -> None:
 
 # ── Status ──────────────────────────────────────────────────────────────────
 
-def _device_connected() -> bool:
+def _device() -> Optional[str]:
+    """Model of the first attached, authorised phone (e.g. 'M2006C3MII'), or None."""
     try:
-        out = subprocess.run([ADB_PATH, "devices"], capture_output=True, text=True, timeout=5).stdout
+        out = subprocess.run([ADB_PATH, "devices", "-l"], capture_output=True, text=True, timeout=5).stdout
     except (OSError, subprocess.SubprocessError):
-        return False
-    return any("\tdevice" in line for line in out.strip().splitlines()[1:])
+        return None
+    for line in out.strip().splitlines()[1:]:
+        parts = line.split()
+        if len(parts) >= 2 and parts[1] == "device":
+            return next((p.split(":", 1)[1] for p in parts if p.startswith("model:")), parts[0])
+    return None
+
+
+def _device_connected() -> bool:
+    return _device() is not None
 
 
 def _appium_running() -> bool:
@@ -79,8 +88,10 @@ def _appium_running() -> bool:
 
 def status_snapshot() -> dict:
     """Pushed to the backend every few seconds, so its status polls need no round trip."""
+    device = _device()
     return {
-        "device_connected": _device_connected(),
+        "device_connected": device is not None,
+        "device": device,
         "appium": "running" if _appium_running() else "stopped",
         "active_run": _active_run,
     }
@@ -157,18 +168,19 @@ def _stored_apk(name: str) -> Path:
     return path
 
 
-def prepare_apk(apk_name: Optional[str] = None, url: Optional[str] = None) -> dict:
+def prepare_apk(apk_name: Optional[str] = None, url: Optional[str] = None,
+                run_id: Optional[str] = None) -> dict:
     """Make sure the APK is on this machine (downloading it if given a URL) and describe it."""
     if bool(apk_name) == bool(url):
         raise RunnerError(400, "Send exactly one of apk_name or url")
 
     if url:
-        suite.send_log("Starting APK download...", "INFO")
+        suite.send_log("Starting APK download...", "INFO", run_id=run_id)
 
         def progress(message: str) -> None:
             clean = message.replace("\r", "").strip()
             if clean:
-                suite.send_log(clean, "PROGRESS")
+                suite.send_log(clean, "PROGRESS", run_id=run_id)
 
         try:
             path = Path(apks.download_apk(url, progress))

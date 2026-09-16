@@ -512,7 +512,8 @@ def pytest_runtest_setup(item):
     try:
         http_requests.post(
             f"{BACKEND_URL}/test/log-step",
-            json={"message": f"[TEST_START:{item.name}]", "status": "INFO"},
+            json={"message": f"[TEST_START:{item.name}]", "status": "INFO",
+                  "run_id": os.getenv("PLATFORM_RUN_ID") or None},
             timeout=2,
         )
     except Exception:

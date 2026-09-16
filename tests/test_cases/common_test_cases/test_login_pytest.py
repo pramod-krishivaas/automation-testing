@@ -16,7 +16,6 @@ import os
 import json
 import allure
 import pytest
-import time
 from pages.common.login_page import load_locators_once, do_login
 from pages.common.switch_page import detect_landed_app, switch_to_app
 
@@ -72,8 +71,8 @@ class TestLogin:
             do_login(driver, self, test_flow_steps, phone_number=phone, mpin=mpin)
 
             # 2. Detect which app_variant the login landed on (detection happens HERE,
-            #    once, after login — never inside the switch).
-            time.sleep(6)
+            #    once, after login — never inside the switch). The wait inside is
+            #    dynamic, so no fixed sleep for the home screen to render.
             landed = detect_landed_app(driver, self)
             print(f"[test] Selected/target role = {role}; landed on = {landed}")
 

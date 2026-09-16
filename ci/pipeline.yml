@@ -1,0 +1,78 @@
+# Android automation pipeline configuration.
+#
+# The GitHub Actions workflow reads this instead of hard-coding application
+# knowledge in YAML. Everything about HOW a test drives the app stays in the
+# pytest framework (tests/, pages/, locators/, conftest.py).
+
+# Which app_variant (--target-role) runs, and in what order. Lowest priority
+# number runs first. Disable one without deleting it by setting enabled: false.
+app_variants:
+  - name: state_client
+    priority: 1
+    enabled: true
+  - name: state_farmer
+    priority: 2
+    enabled: true
+  - name: regular_farmer
+    priority: 3
+    enabled: true
+  - name: regular_client
+    priority: 4
+    enabled: true
+
+# Suite types, in the order they run within each variant. `type` must match a
+# label in tests/test_type_config.py (TEST_TYPE_FOLDERS), which maps it to
+# tests/test_suites/<folder>/. A variant's tests for a type live in
+# tests/test_suites/<folder>/<variant>/; combinations with no test files are
+# skipped, not failed.
+#
+# Only End-to-End is enabled for now. Flip `enabled` to true to bring another
+# type into the pipeline; a trigger's suite_selection cannot run a disabled type.
+suites:
+  - type: Smoke
+    priority: 1
+    enabled: false
+  - type: Sanity
+    priority: 2
+    enabled: false
+  - type: Regression
+    priority: 3
+    enabled: false
+  - type: End-to-End
+    priority: 4
+    enabled: true
+
+execution:
+  # The shared login + role-switch run that must precede a variant's suites:
+  # it logs in, detects which home the number landed on, and switches to the
+  # requested --target-role.
+  login_entry: tests/test_cases/common_test_cases/test_login_pytest.py
+
+  # continue           — record the failure and keep running the remaining
+  #                      variants/suites, so one bad suite still produces a
+  #                      complete Allure report (the default, per spec §11).
+  # stop_on_first_failure — abandon the rest of the run after the first failing
+  #                      suite.
+  failure_strategy: continue
+
+  # Also run tests that are shared/common rather than under a type folder.
+  # Off by default: those are selected by DB tag, which needs the platform
+  # backend, and CI runs without it.
+  include_common_tests: false
+
+  # Extra arguments appended to every pytest invocation.
+  pytest_extra_args: []
+
+emulator:
+  # Overridable per run from the workflow inputs / trigger payload.
+  device: pixel_6
+  api_level: 34
+  target: google_apis
+  arch: x86_64
+
+reports:
+  # How many test runs stay on GitHub Pages. Older ones are pruned when a new
+  # report is published.
+  retention_runs: 30
+  # Report directory/site title.
+  site_title: Android Automation Reports

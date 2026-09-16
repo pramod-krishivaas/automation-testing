@@ -32,7 +32,7 @@ and where the results go.
    | `LOGIN_PHONE` | login | Overrides `tests/test_data/accounts.json` for the run. Optional. |
    | `LOGIN_MPIN` | login | Optional. |
 
-   `GITHUB_TOKEN` is provided automatically and is what deletes the APK artifact.
+   `GITHUB_TOKEN`--  is provided automatically and is what deletes the APK artifact.
 
 3. **Variables** (same page → *Variables*):
 

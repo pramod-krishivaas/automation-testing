@@ -21,10 +21,7 @@ onto the test class by `pages/common/login_page.load_locators_once`.
 import time
 import pytest
 from appium.webdriver.common.appiumby import AppiumBy
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from utils.wait_utils import smart_click
+from utils.wait_utils import DEFAULT_WAIT_TIMEOUT, smart_click, wait_for_first_displayed
 
 import sys
 sys.dont_write_bytecode = True
@@ -49,52 +46,36 @@ def _log_step(steps, text, status="Success"):
         steps.append({"step": text, "status": status})
 
 
-def _element_present(driver, xpath, timeout=1) -> bool:
-    if not xpath:
-        return False
-    try:
-        WebDriverWait(driver, timeout).until(
-            EC.presence_of_element_located((AppiumBy.XPATH, xpath))
-        )
-        return True
-    except TimeoutException:
-        return False
-    except Exception:
-        return False
-
-
 def _configured_markers(obj) -> dict:
     """Home markers that actually have an xpath value (blank ones are 'not set')."""
     markers = getattr(obj, "home_markers", {}) or {}
     return {role: xp for role, xp in markers.items() if xp}
 
 
-def detect_landed_app(driver, obj, timeout=10, probe_timeout=2):
+def detect_landed_app(driver, obj, timeout=DEFAULT_WAIT_TIMEOUT, poll_interval=0.5):
     """
-    Identify which role's home screen is currently shown by probing each
-    configured `home_markers` locator in priority order.
+    Identify which role's home screen is currently shown by waiting for whichever
+    configured `home_markers` locator appears first, in priority order.
 
-    Returns the role key (e.g. 'regular_farmer'), or None if no marker matched
+    Returns the role key (e.g. 'regular_farmer'), or None if no marker showed up
     (either none configured, or the home hasn't rendered / is an unknown screen).
-    `probe_timeout` is the per-marker wait; keep it >1s so a slow find under a
-    loading app doesn't produce a false negative.
+    The wait is dynamic: every marker is probed each sweep and detection returns
+    as soon as the home renders, so a slow login doesn't need a longer sleep.
     """
     configured = _configured_markers(obj)
     if not configured:
         print("[switch] No home_markers configured in unified_app.json — cannot detect landed app.")
         return None
 
-    deadline = time.time() + timeout
-    while time.time() < deadline:
-        for role in ROLE_PRIORITY:
-            xp = configured.get(role)
-            if xp and _element_present(driver, xp, timeout=probe_timeout):
-                print(f"[switch] Landed app detected → {role} - {configured.get(role)} - ({ROLE_LABELS.get(role, role)})")
-                return role
-        time.sleep(1)
+    # Priority order decides ties, mirroring the app's own redirect precedence.
+    ordered = {role: configured[role] for role in ROLE_PRIORITY if configured.get(role)}
+    role, _element = wait_for_first_displayed(driver, ordered, timeout=timeout, poll_interval=poll_interval)
+    if role:
+        print(f"[switch] Landed app detected → {role} - {ordered[role]} - ({ROLE_LABELS.get(role, role)})")
+        return role
 
     print(f"[switch] Could not detect landed app within {timeout}s. Probed these "
-          f"home_markers (unified_app.json): {configured}")
+          f"home_markers (unified_app.json): {ordered}")
     # Dump what's actually on screen so the real chip text is visible — the usual
     # cause of a None here is a home_marker that doesn't match the rendered text
     # (e.g. whitespace/label drift). Compare 'On-screen now' against the markers.

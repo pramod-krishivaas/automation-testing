@@ -14,6 +14,10 @@ from selenium.webdriver.common.by import By
 
 sys.dont_write_bytecode = True
 
+# Default for the dynamic waits below: long enough for a slow screen to render,
+# short enough that a genuinely missing element doesn't stall the run.
+DEFAULT_WAIT_TIMEOUT = 20
+
 
 def _console_log(msg: str) -> None:
     # flush=True is important when output is piped (subprocess -> backend -> UI)
@@ -247,6 +251,7 @@ def smart_find_element(
     enable_dom_fallback: bool = True,
     ocr_attempts: int = 2,
     ocr_wait_s: float = 0.7,
+    timeout: float = DEFAULT_WAIT_TIMEOUT,
 ):
     """
     Find element with optional OCR-first mode.
@@ -255,17 +260,13 @@ def smart_find_element(
       - try primary xpath once
       - then do OCR click attempts (no UiScrollable, no DOM/scroll loop)
     """
-    # 1) Primary XPath Strategy (always try)
-    # 1) Primary XPath Strategy (always try)
-    try:
-        element = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((AppiumBy.XPATH, xpath))
-        )
+    # 1) Primary XPath Strategy (always try) — dynamic wait: returns the moment
+    # the element is visible, instead of blocking for a flat timeout either way.
+    element = wait_until_displayed(driver, xpath, timeout=timeout)
+    if element:
         _console_log(f"[FOUND] name='{name}' via XPATH")
         return element, False
-    
-    except TimeoutException:
-        print(f"[{name}] Not found via Primary XPath.")
+    print(f"[{name}] Not found via Primary XPath (waited {timeout}s).")
 
     if not xpath:
        raise ValueError(f"XPath is empty for element: {name}")
@@ -413,6 +414,7 @@ def smart_click(
     enable_scroll: bool = True,
     enable_dom_fallback: bool = True,
     ocr_attempts: int = 2,
+    timeout: float = DEFAULT_WAIT_TIMEOUT,
 ):
     """
     Wrapper around smart_find_element to perform a click.
@@ -433,6 +435,7 @@ def smart_click(
         enable_scroll=enable_scroll,
         enable_dom_fallback=enable_dom_fallback,
         ocr_attempts=ocr_attempts,
+        timeout=timeout,
     )
 
     if element:
@@ -1177,6 +1180,49 @@ def wait_and_click(driver, xpath, timeout=20):
     element = wait_for_element(driver, xpath, timeout)
     element.click()
     return True
+
+
+def wait_for_first_displayed(driver, xpaths, timeout=DEFAULT_WAIT_TIMEOUT,
+                             poll_interval=0.5, require_visible=True):
+    """Wait for whichever of several locators appears first.
+
+    `xpaths` is {name: xpath} or a list of xpaths; blank entries are skipped.
+    Returns (name, element) — the list index as the name for a list — or
+    (None, None) if none appeared within `timeout`.
+
+    Every locator is probed on each sweep instead of each getting its own
+    timeout, so one slow locator can't eat the whole budget and the first
+    element to render wins. Ties go to the earlier entry, which is how callers
+    express priority.
+    """
+    items = list(xpaths.items()) if isinstance(xpaths, dict) else list(enumerate(xpaths))
+    deadline = time.time() + timeout
+    while True:
+        for name, xpath in items:
+            if not xpath:
+                continue
+            try:
+                for element in driver.find_elements(AppiumBy.XPATH, xpath):
+                    if not require_visible or element.is_displayed():
+                        return name, element
+            except Exception:
+                continue  # transient (stale element, screen mid-render): retry next sweep
+        if time.time() >= deadline:
+            return None, None
+        time.sleep(poll_interval)
+
+
+def wait_until_displayed(driver, xpath, timeout=DEFAULT_WAIT_TIMEOUT,
+                         poll_interval=0.5, require_visible=True):
+    """Poll until `xpath` is on screen; return the element, or None if it never appears.
+
+    Unlike wait_for_element(), this returns None instead of raising, for callers
+    that treat "not there" as an outcome rather than a failure.
+    """
+    _, element = wait_for_first_displayed(
+        driver, [xpath], timeout=timeout, poll_interval=poll_interval, require_visible=require_visible
+    )
+    return element
 
 
 def wait_for_otp_filled(driver, otp_xpath, expected_length=6, timeout=30):

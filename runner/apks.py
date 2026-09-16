@@ -9,6 +9,7 @@ the APKs.
 """
 
 import os
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -30,6 +31,10 @@ def _default_data_root() -> Path:
 
 DATA_ROOT = Path(os.getenv("PLATFORM_DATA_DIR") or _default_data_root()).expanduser().resolve()
 APK_STORAGE_DIR = Path(os.getenv("APK_STORAGE_DIR") or DATA_ROOT / "apks").expanduser().resolve()
+
+# Drive file ids in share links (…/file/d/<id>/view?usp=sharing) and in
+# open?id= / uc?id= links.
+_DRIVE_FILE_ID = re.compile(r"(?:/file/d/|/d/|[?&]id=)([A-Za-z0-9_-]{10,})")
 
 
 def list_apks() -> list[str]:
@@ -101,6 +106,12 @@ class _ProgressCapture:
 def download_apk(gdrive_url: str, progress_callback: Optional[Callable[[str], None]] = None) -> str:
     """Download an APK from Google Drive into the storage dir, keeping its original
     filename, and return its absolute path."""
+    match = _DRIVE_FILE_ID.search(gdrive_url or "")
+    if not match:
+        raise Exception(
+            "That isn't a Google Drive file link. In Drive, use the file's Share link "
+            "(https://drive.google.com/file/d/<id>/view)."
+        )
     APK_STORAGE_DIR.mkdir(parents=True, exist_ok=True)
     print(f"⬇️ Starting download from GDrive: {gdrive_url}")
 
@@ -110,8 +121,11 @@ def download_apk(gdrive_url: str, progress_callback: Optional[Callable[[str], No
         if progress_callback:
             sys.stderr = _ProgressCapture(progress_callback)
 
-        # gdown picks the original filename and downloads into the current dir.
-        tmp_path = gdown.download(gdrive_url, quiet=False)
+        # Pass the file id, not the link: gdown only understands share links from
+        # 6.x on, and older versions name the file after the URL ("view?usp=
+        # sharing…"), which Windows rejects. An output ending in a separator is a
+        # directory, so the file keeps its name from Drive.
+        tmp_path = gdown.download(id=match.group(1), output=str(APK_STORAGE_DIR) + os.sep, quiet=False)
 
         if not tmp_path or not os.path.exists(tmp_path):
             raise Exception("Download failed - gdown returned no path.")

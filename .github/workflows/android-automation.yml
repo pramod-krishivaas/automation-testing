@@ -169,6 +169,7 @@ jobs:
     outputs:
       status: ${{ steps.outcome.outputs.status }}
       failure_category: ${{ steps.outcome.outputs.failure_category }}
+      has_results: ${{ steps.outcome.outputs.has_results }}
     steps:
       - uses: actions/checkout@v4
 
@@ -270,6 +271,11 @@ jobs:
           fi
           echo "status=$status" >> "$GITHUB_OUTPUT"
           echo "failure_category=$category" >> "$GITHUB_OUTPUT"
+          if ls allure-results/*-result.json > /dev/null 2>&1; then
+            echo "has_results=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_results=false" >> "$GITHUB_OUTPUT"
+          fi
           echo "Run status: $status  category: ${category:-none}"
 
       - name: Upload the Allure results
@@ -312,7 +318,9 @@ jobs:
   # ── 3. Allure report → gh-pages branch (served by GitHub Pages), per RUN_ID ─
   publish-report:
     needs: [prepare, android-test]
-    if: always() && needs.prepare.result == 'success'
+    # Skipped (not failed) when the run was cancelled or the tests never
+    # produced results — there is no report to publish.
+    if: ${{ !cancelled() && needs.prepare.result == 'success' && needs.android-test.outputs.has_results == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -410,7 +418,7 @@ jobs:
   # ── 4. Slack result, with the exact report URL for this RUN_ID ────────────
   notify:
     needs: [prepare, android-test, publish-report]
-    if: always() && needs.prepare.result == 'success'
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

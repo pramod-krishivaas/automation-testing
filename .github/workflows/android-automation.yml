@@ -199,6 +199,14 @@ jobs:
           appium --version
           appium driver list --installed
 
+      # The framework's OCR click fallback (tests/utils/ocr_utils.py) shells out to
+      # the tesseract binary; pytesseract alone is not enough.
+      - name: Install Tesseract OCR
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q tesseract-ocr
+          tesseract --version | head -1
+
       - name: Download the APK artifact
         uses: actions/download-artifact@v4
         with:
@@ -287,21 +295,28 @@ jobs:
           retention-days: 7
           if-no-files-found: warn
 
+      # One directory per artifact so each unpacks with the same layout. Given
+      # several paths, upload-artifact roots the archive at their common parent,
+      # which put summary.json under ci-out/ci-out/ whenever screenshots existed.
       - name: Upload the run summary and logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: run-summary-${{ needs.prepare.outputs.run_id }}
+          path: ci-out/
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Upload failure screenshots and flow logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-evidence-${{ needs.prepare.outputs.run_id }}
           path: |
-            ci-out/summary.json
-            ci-out/appium.log
-            ci-out/logcat.txt
-            ci-out/install.log
-            ci-out/failure-category
             screenshots
             test-flows
           retention-days: 14
-          if-no-files-found: warn
+          if-no-files-found: ignore
 
       # The suites step continues on error so logs and results still upload;
       # this makes the job itself show red when the run did not pass. Later

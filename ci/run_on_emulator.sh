@@ -14,6 +14,7 @@ OUT_DIR="${OUT_DIR:-ci-out}"
 mkdir -p "$OUT_DIR"
 
 APPIUM_PID=""
+LOGCAT_PID=""
 
 record() {  # record <category> <message>
   echo "$1" > "$OUT_DIR/failure-category"
@@ -22,13 +23,35 @@ record() {  # record <category> <message>
 
 collect_and_stop() {
   echo "── Collecting logs ─────────────────────────────────────────────"
-  adb logcat -d > "$OUT_DIR/logcat.txt" 2>/dev/null && echo "logcat → $OUT_DIR/logcat.txt"
+  if [ -n "$LOGCAT_PID" ] && kill -0 "$LOGCAT_PID" 2>/dev/null; then
+    kill "$LOGCAT_PID" 2>/dev/null
+    wait "$LOGCAT_PID" 2>/dev/null
+  else
+    adb logcat -d > "$OUT_DIR/logcat.txt" 2>/dev/null
+  fi
+  echo "logcat → $OUT_DIR/logcat.txt"
+  annotate_crashes
   if [ -n "$APPIUM_PID" ] && kill -0 "$APPIUM_PID" 2>/dev/null; then
     kill "$APPIUM_PID" 2>/dev/null
     wait "$APPIUM_PID" 2>/dev/null
     echo "Appium stopped."
   fi
 }
+# Crash lines surface as a warning on the run page, readable without downloading
+# the logs. Patterns are app crashes, native crashes, ANRs and the app process
+# dying; `D AndroidRuntime: >>>>>> START` lines from adb shell commands are not
+# matched because only error/fatal levels are.
+annotate_crashes() {
+  [ -s "$OUT_DIR/logcat.txt" ] || return 0
+  local pkg="${APP_PACKAGE:-__no_package__}"
+  local lines
+  lines=$(grep -m 12 -E " E AndroidRuntime| F libc |Fatal signal|am_crash|ANR in| E ReactNativeJS|Process ${pkg} .*has died" "$OUT_DIR/logcat.txt")
+  [ -n "$lines" ] || return 0
+  # Workflow-command encoding: % and newlines must be escaped.
+  echo "::warning title=Crash signals in logcat::$(printf '%s\n' "$lines" \
+    | awk '{ gsub(/\r/, ""); gsub(/%/, "%25"); printf "%s%s", (NR > 1 ? "%0A" : ""), substr($0, 1, 300) }')"
+}
+
 # Cleanup runs however this script exits, including a failure below (spec §27).
 trap collect_and_stop EXIT
 
@@ -42,6 +65,12 @@ if [ "$online" -ne 1 ]; then
 fi
 echo "Boot completed: $(adb shell getprop sys.boot_completed | tr -d '\r')"
 echo "Android       : $(adb shell getprop ro.build.version.release | tr -d '\r')"
+
+# Stream logcat for the whole run: by the end, the device's small ring buffers
+# have usually overwritten the lines from when the app first launched.
+adb logcat -c 2>/dev/null
+adb logcat -b main -b system -b crash -b events -v threadtime > "$OUT_DIR/logcat.txt" 2>/dev/null &
+LOGCAT_PID=$!
 
 echo "── Installing the APK ──────────────────────────────────────────"
 if ! adb install -r "$APK_PATH" > "$OUT_DIR/install.log" 2>&1; then

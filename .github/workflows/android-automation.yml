@@ -63,8 +63,13 @@ permissions:
 
 env:
   PYTHON_VERSION: "3.11"
-  NODE_VERSION: "20"
+  NODE_VERSION: "24"
   JAVA_VERSION: "17"
+  # Pinned to the versions the suites run against on the test laptops. The
+  # driver and server must match: `appium driver install uiautomator2` without a
+  # version takes the newest driver, which can require a newer Appium server.
+  APPIUM_VERSION: "3.5.2"
+  UIAUTOMATOR2_DRIVER_VERSION: "8.1.0"
   APPIUM_PORT: "4723"
   # Emulator defaults; a trigger can override device/API per run.
   ANDROID_DEVICE: pixel_6
@@ -188,9 +193,10 @@ jobs:
 
       - name: Install Appium and the UiAutomator2 driver
         run: |
-          npm install -g appium@2
-          appium driver install uiautomator2
+          npm install -g "appium@${APPIUM_VERSION}"
+          appium driver install "uiautomator2@${UIAUTOMATOR2_DRIVER_VERSION}"
           appium --version
+          appium driver list --installed
 
       - name: Download the APK artifact
         uses: actions/download-artifact@v4

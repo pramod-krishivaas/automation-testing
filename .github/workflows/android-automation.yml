@@ -297,6 +297,18 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
 
+      # The suites step continues on error so logs and results still upload;
+      # this makes the job itself show red when the run did not pass. Later
+      # jobs still run, and they still see this job's outputs.
+      - name: Fail the job unless the suites passed
+        if: always() && steps.outcome.outputs.status != 'PASSED'
+        env:
+          STATUS: ${{ steps.outcome.outputs.status }}
+          CATEGORY: ${{ steps.outcome.outputs.failure_category }}
+        run: |
+          echo "::error::Android suites did not pass: ${STATUS} ${CATEGORY:+($CATEGORY)}"
+          exit 1
+
   # ── 3. Allure report → GitHub Pages, under this RUN_ID ────────────────────
   publish-report:
     needs: [prepare, android-test]

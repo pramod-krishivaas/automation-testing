@@ -53,9 +53,14 @@ fi
 cat "$OUT_DIR/install.log"
 
 if [ -n "$APP_PACKAGE" ]; then
-  if adb shell pm list packages | tr -d '\r' | grep -qx "package:$APP_PACKAGE"; then
-    echo "Package installed: $APP_PACKAGE"
+  # Capture, then compare. Piping into `grep -q` under pipefail reports a miss
+  # when grep exits early and the writers get SIGPIPE (141), even on a match.
+  installed=$(adb shell pm path "$APP_PACKAGE" 2>/dev/null | tr -d '\r')
+  if [[ "$installed" == package:* ]]; then
+    echo "Package installed: $APP_PACKAGE (${installed#package:})"
   else
+    echo "Third-party packages on the device:"
+    adb shell pm list packages -3 | tr -d '\r'
     record ENVIRONMENT_FAILURE "$APP_PACKAGE is not present after install."
     exit 2
   fi

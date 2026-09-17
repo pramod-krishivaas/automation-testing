@@ -1,0 +1,23 @@
+{
+  "ticket_id": "RUN-20260917-101609",
+  "issue_id": "ISS-001",
+  "app_name": "Krishivaas",
+  "app_version": "2.5.1",
+  "module": "Login",
+  "feature": "Authentication",
+  "issue_summary": "Automation Failure: test_LOGINPOS_TC_030",
+  "title": "Automation Failure: test_LOGINPOS_TC_030",
+  "test_name": "test_LOGINPOS_TC_030",
+  "steps_executed": [],
+  "developer_name": "john",
+  "description": "pytest.fail(f\"[switch] Unknown target_role '{target_role}'. Expected one of {ROLE_PRIORITY}.\")\npytest.fail(\"[switch] switch_control.switch_toggle_button is not configured in unified_app.json.\")\npytest.fail(\"[switch] Could not open the app switcher (switch_toggle_button).\")\npytest.fail(\n>           pytest.fail(f\"[switch] Could not select target app '{target_role}' in the switcher.\")\nFailed: [switch] Could not select target app 'regular_client' in the switcher.",
+  "start_date": "2026-09-17T10:16:10.454390",
+  "end_date": "2026-09-17T10:17:45.698747",
+  "sprint": "Automation",
+  "fix_version": [
+    "Production"
+  ],
+  "affects_version": [
+    "Krishivaas"
+  ]
+}

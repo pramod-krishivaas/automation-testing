@@ -1,0 +1,4 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","65476","Dashboard → Add Farmer → Add Farm → Add Crop","tests.test_suites.end_to_end.regular_client","2026-09-17","failed","2026-09-17","TestOnboarding","test_onboarding_pytest","",""
+"","39583","Dashboard → Add Farmer → Add Farm → Add Crop","tests.test_suites.end_to_end.state_client","2026-09-17","passed","2026-09-17","TestOnboarding","test_onboarding_pytest","",""
+"","83487","test_LOGINPOS_TC_030 -- Verify user can login with valid credentials","tests.test_cases.common_test_cases","2026-09-17","failed","2026-09-17","TestLogin","test_login_pytest","",""

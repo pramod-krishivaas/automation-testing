@@ -40,7 +40,10 @@ MIN_APK_BYTES = 1_000_000  # anything smaller is an error page, not a build
 
 def _predictable_name(metadata: dict, downloaded: Path) -> str:
     """<app>-<version>-<build>.apk, so the artifact is self-describing (spec §4.8)."""
-    parts = [slugify(metadata.get("app_name"), "app"), slugify(metadata.get("app_version"), "")]
+    # Keep the dots in the version: krishivaas-2.5.1-125.apk, not krishivaas-2-5-1-125.apk.
+    version = "".join(ch if ch.isalnum() or ch == "." else "-"
+                      for ch in str(metadata.get("app_version") or "")).strip("-.")
+    parts = [slugify(metadata.get("app_name"), "app"), version]
     if metadata.get("build_id"):
         parts.append(slugify(metadata["build_id"], ""))
     name = "-".join(p for p in parts if p)

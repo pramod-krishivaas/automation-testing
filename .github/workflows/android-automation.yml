@@ -73,7 +73,7 @@ env:
   APPIUM_PORT: "4723"
   # Emulator defaults; a trigger can override device/API per run.
   ANDROID_DEVICE: pixel_6
-  ANDROID_API_LEVEL: "34"
+  ANDROID_API_LEVEL: "30"
   ANDROID_TARGET: google_apis
   ANDROID_ARCH: x86_64
 

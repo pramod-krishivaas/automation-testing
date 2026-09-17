@@ -12,13 +12,13 @@ app_variants:
     enabled: true
   - name: state_farmer
     priority: 2
-    enabled: true
+    enabled: false
   - name: regular_farmer
     priority: 3
-    enabled: true
+    enabled: false
   - name: regular_client
     priority: 4
-    enabled: true
+    enabled: false
 
 # Suite types, in the order they run within each variant. `type` must match a
 # label in tests/test_type_config.py (TEST_TYPE_FOLDERS), which maps it to

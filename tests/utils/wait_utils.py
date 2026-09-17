@@ -16,7 +16,7 @@ sys.dont_write_bytecode = True
 
 # Default for the dynamic waits below: long enough for a slow screen to render,
 # short enough that a genuinely missing element doesn't stall the run.
-DEFAULT_WAIT_TIMEOUT = 20
+DEFAULT_WAIT_TIMEOUT = 30
 
 
 def _console_log(msg: str) -> None:

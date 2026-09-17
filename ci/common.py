@@ -11,6 +11,7 @@ import json
 import os
 import re
 import sys
+import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
@@ -50,12 +51,20 @@ def fail(message: str, code: int = EXIT_CONFIG, category: str = ENVIRONMENT_FAIL
 
 
 def run_cli(main) -> None:
-    """Run a script's main(), turning CiError into a clean message + exit code."""
+    """Run a script's main(), turning any failure into an ::error:: line + exit code.
+
+    Unexpected crashes get an annotation too: annotations can be read without
+    access to the run's logs, so the reason is visible on the run page.
+    """
     try:
         sys.exit(main() or EXIT_OK)
     except CiError as exc:
         log(f"::error::{exc}")
         sys.exit(exc.code)
+    except Exception as exc:  # a bug or missing dependency in the orchestration itself
+        traceback.print_exc()
+        log(f"::error::Unexpected {type(exc).__name__}: {exc}")
+        sys.exit(EXIT_INFRASTRUCTURE)
 
 
 # ── Config ──────────────────────────────────────────────────────────────────

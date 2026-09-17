@@ -96,9 +96,10 @@ jobs:
           cache: pip
 
       # Only what the prepare scripts need — the full framework install happens
-      # in the test job, where it is actually used.
+      # in the test job, where it is actually used. fetch_apk.py imports
+      # runner/apks.py, so this must cover that module's imports too.
       - name: Install prepare dependencies
-        run: pip install "gdown>=5.2.0" "androguard>=4.1.3" "PyYAML>=6.0"
+        run: pip install "gdown>=5.2.0" "androguard>=4.1.3" "python-dotenv>=1.1.0" "PyYAML>=6.0"
 
       - name: Parse trigger and generate RUN_ID
         id: meta

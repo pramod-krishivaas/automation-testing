@@ -309,19 +309,14 @@ jobs:
           echo "::error::Android suites did not pass: ${STATUS} ${CATEGORY:+($CATEGORY)}"
           exit 1
 
-  # ── 3. Allure report → GitHub Pages, under this RUN_ID ────────────────────
+  # ── 3. Allure report → gh-pages branch (served by GitHub Pages), per RUN_ID ─
   publish-report:
     needs: [prepare, android-test]
     if: always() && needs.prepare.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
-      contents: write   # pushes the accumulated site to the gh-pages branch
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+      contents: write   # Pages serves the gh-pages branch this job pushes
     outputs:
       report_url: ${{ steps.publish.outputs.report_url }}
     steps:
@@ -369,25 +364,32 @@ jobs:
           name: run-summary-${{ needs.prepare.outputs.run_id }}
           path: ci-out
 
-      - uses: actions/configure-pages@v5
-        id: pages
-
       - name: Add this run to the report site
         id: publish
         env:
           REPORT_RETENTION_RUNS: ${{ vars.REPORT_RETENTION_RUNS }}
+          # Only needed if Pages is served from a custom domain.
+          REPORTS_BASE_URL: ${{ vars.REPORTS_BASE_URL }}
         run: |
+          owner=$(echo "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')
+          repo="${GITHUB_REPOSITORY#*/}"
+          if [ "$repo" = "$owner.github.io" ]; then
+            pages_url="https://$owner.github.io"
+          else
+            pages_url="https://$owner.github.io/$repo"
+          fi
           mkdir -p reports-site
           python ci/publish_report.py \
             --site reports-site \
             --results allure-results \
             --metadata ci-out/metadata.json \
             --summary ci-out/summary.json \
-            --base-url "${{ steps.pages.outputs.base_url }}" \
+            --base-url "${REPORTS_BASE_URL:-$pages_url}" \
             --retention "${REPORT_RETENTION_RUNS:-0}"
 
-      # The branch is the durable store: Pages artifacts expire, past reports
-      # must not (spec §17).
+      # Pages is set to "Deploy from a branch: gh-pages / (root)", so this push
+      # is the deployment. The branch holds every retained run, which is why
+      # publishing adds to the site instead of replacing it (spec §17).
       - name: Save the site to the gh-pages branch
         working-directory: reports-site
         env:
@@ -404,13 +406,6 @@ jobs:
           git add -A
           git commit -q -m "Allure report for $RUN_ID" || echo "Nothing new to commit."
           git push -q --force origin HEAD:gh-pages
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: reports-site
-
-      - id: deploy
-        uses: actions/deploy-pages@v4
 
   # ── 4. Slack result, with the exact report URL for this RUN_ID ────────────
   notify:

@@ -1,0 +1,23 @@
+{
+  "ticket_id": "RUN-20260917-091103",
+  "issue_id": "ISS-002",
+  "app_name": "Krishivaas",
+  "app_version": "2.5.1",
+  "module": "Onboarding",
+  "feature": "Authentication",
+  "issue_summary": "Automation Failure: test_add_new_farmer_farm_crop_flow",
+  "title": "Automation Failure: test_add_new_farmer_farm_crop_flow",
+  "test_name": "test_add_new_farmer_farm_crop_flow",
+  "steps_executed": [],
+  "developer_name": "john",
+  "description": "FileNotFoundError: [Errno 2] No such file or directory: 'tesseract'\npytesseract.pytesseract.TesseractNotFoundError: tesseract is not installed or it's not in your PATH. See README file for more information.",
+  "start_date": "2026-09-17T09:12:57.874459",
+  "end_date": "2026-09-17T09:14:04.492560",
+  "sprint": "Automation",
+  "fix_version": [
+    "Production"
+  ],
+  "affects_version": [
+    "Krishivaas"
+  ]
+}

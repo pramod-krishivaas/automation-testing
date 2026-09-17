@@ -18,7 +18,7 @@ app_variants:
     enabled: false
   - name: regular_client
     priority: 4
-    enabled: false
+    enabled: true
 
 # Suite types, in the order they run within each variant. `type` must match a
 # label in tests/test_type_config.py (TEST_TYPE_FOLDERS), which maps it to

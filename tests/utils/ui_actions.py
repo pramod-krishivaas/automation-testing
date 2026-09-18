@@ -12,6 +12,8 @@ from selenium.common.exceptions import WebDriverException
 import random
 import time
 
+from utils.wait_utils import DEFAULT_WAIT_TIMEOUT, wait_until_displayed
+
 def _ensure_locator_is_tuple(locator):
     if isinstance(locator, str):
         return (AppiumBy.XPATH, locator)
@@ -97,6 +99,35 @@ def smart_send_keys(driver, locator, text, coordinates=None, element_name="Input
     except Exception as e:
         print(f"   -> Failed to send keys to '{element_name}': {e}")
         return False
+
+def set_input_value(driver, xpath, value, element_name="Input", timeout=DEFAULT_WAIT_TIMEOUT):
+    """Put `value` into an input without tapping it, so the soft keyboard never opens.
+
+    Waits for the field, then sets its text through UiAutomator2
+    (replaceElementValue), the way an accessibility service would, instead of
+    focusing the field and typing. Returns True once the value is set.
+    """
+    if not xpath:
+        print(f"   -> No locator configured for '{element_name}'.")
+        return False
+    element = wait_until_displayed(driver, xpath, timeout=timeout)
+    if element is None:
+        print(f"   -> '{element_name}' not found within {timeout}s.")
+        return False
+    text = str(value)
+    try:
+        driver.execute_script("mobile: replaceElementValue", {"elementId": element.id, "text": text})
+    except WebDriverException:
+        element.send_keys(text)  # UiAutomator2 sets this without focusing the field either
+    # Screens that auto-focus a field open the keyboard on their own; close it so it
+    # doesn't cover the next element.
+    try:
+        if driver.is_keyboard_shown():
+            driver.hide_keyboard()
+    except WebDriverException:
+        pass
+    print(f"   -> Set '{element_name}' to {text!r} without the keyboard.")
+    return True
 
 def smart_select_dropdown(driver, trigger_locator, option_text, coordinates=None, element_name="Dropdown", timeout=10):
     """

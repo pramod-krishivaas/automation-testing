@@ -26,7 +26,7 @@
     },
     "add_crop_screen": {
       "crop_name_dropdown": "Crop Name dropdown",
-      "crop_name": "//android.view.ViewGroup[contains(@content-desc,'Bengal Gram')]",
+      "crop_name": "Arecanut",
       "short_duration_button": "//android.view.ViewGroup[@content-desc=\"Short (90 Days)\"]",
       "long_duration_button": "//android.view.ViewGroup[@content-desc=\"Medium (120 Days)\"]",
       "medium_duration_button": "//android.view.ViewGroup[@content-desc=\"Long (150 Days)\"]",
@@ -36,7 +36,7 @@
       "sowing_date": "(//android.widget.TextView[@text=\"\"])[2]",
       "calendar_ok_button": "//android.widget.Button[@resource-id=\"android:id/button1\"]",
       "transplanted_date": "(//android.widget.TextView[@text=\"\"])[1]",
-      "plantation_date": "Plantation Date *, --/--/----, "
+      "plantation_date": "Plantation Date"
     }
   },
   "element_ids": {
@@ -58,7 +58,7 @@
     "add_farmer_screen": {
       "add_farmer_name": "farmer-name-input",
       "add_farmer_phone": "phone-number-input",
-      "business_unit_dropdown": "(//android.widget.TextView[@text=\"\"])[1]",
+      "business_unit_dropdown": "business-unit-dropdown",
       "search_business_unit": "//android.widget.Button[@content-desc=\"Please select a business unit\"]",
       "field_agent_dropdown": "(//android.widget.TextView[@text=\"\"])[2]",
       "submit_button_add_farmer": "submit-input",
@@ -66,7 +66,7 @@
     },
     "add_crop_screen": {
       "crop_name_dropdown": "crop-name-dropdown",
-      "crop_name": "//android.view.ViewGroup[contains(@content-desc,'Bengal Gram')]",
+      "crop_name": "crop-name-arecanut",
       "short_duration_button": "//android.view.ViewGroup[@content-desc=\"Short (90 Days)\"]",
       "long_duration_button": "//android.view.ViewGroup[@content-desc=\"Medium (120 Days)\"]",
       "medium_duration_button": "//android.view.ViewGroup[@content-desc=\"Long (150 Days)\"]",
@@ -74,9 +74,9 @@
       "transplanted_button": "//android.view.ViewGroup[@content-desc=\"Transplanted\"]",
       "submit_crop_button": "submit-input",
       "sowing_date": "(//android.widget.TextView[@text=\"\"])[2]",
-      "calendar_ok_button": "//android.widget.Button[@resource-id=\"android:id/button1\"]",
+      "calendar_ok_button": "android:id/button1",
       "transplanted_date": "(//android.widget.TextView[@text=\"\"])[1]",
-      "plantation_date": "plantation-date-date-picker"
+      "plantation_date": "plantation-date-input"
     }
   },
   "xpath_locators": {
@@ -95,15 +95,15 @@
     "dashboard_screen": {
       "add_button_dashboard": "//android.view.ViewGroup[@content-desc=\"Add\"]",
       "add_new_farmer_option": "//android.view.ViewGroup[@content-desc=\"Add New Farmer\"]",
-      "farm_village_dropdown_button": "//android.widget.TextView[@text=\"\"]",
-      "farm_village_item": "//android.view.ViewGroup[@content-desc=\"Jaggaram (2710003)\"]",
+      "farm_village_dropdown_button": "//android.widget.Button[@content-desc=\"Farm Village dropdown\"]",
+      "farm_village_item": "//android.widget.Button[@content-desc=\"Jaggaram (2710003)\"]",
       "download_boundary_button": "//android.widget.TextView[@text=\"⬇ Download Boundary\"]",
       "search_by_bunds_results": "//android.widget.TextView[contains(@text,'20')]",
       "only_add_farmer_button": "//android.view.ViewGroup[@content-desc='Only add farmer']",
       "submit_button_farm_villages": "//android.view.ViewGroup[@content-desc=\"Submit\"]",
-      "search_by_bunds_lat_long_option": "//android.widget.EditText[@text=\"Search by bund, lat-long\"]",
-      "search_by_bunds_lat_long_input": "//android.view.ViewGroup[@content-desc=\"Bund: 580\"]",
-      "select_bund": "(//android.view.View[@content-desc=\"Map Marker\"])[4]",
+      "search_by_bunds_lat_long_option": "//android.widget.EditText[@resource-id=\"map-search-input\"]",
+      "search_by_bunds_lat_long_input": "//android.widget.TextView[@text=\"Bund: 581\"]",
+      "select_bund": "(//android.view.View[@content-desc=\"Google Map\"]/android.view.View[@content-desc=\"Map Marker\"])[12]",
       "confirm_bunds_selection_button": "//android.view.ViewGroup[@content-desc=\"Confirm Boundary\"]",
       "select_survey_button": "//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[1]/android.view.ViewGroup[1]",
       "search_by_survey_number_option": "//android.widget.EditText[@text=\"Search by survey, lat-long\"]"
@@ -111,16 +111,20 @@
     "add_farmer_screen": {
       "add_farmer_name": "//android.widget.EditText[@content-desc=\"Farmer Name input field, mandatory\"]",
       "add_farmer_phone": "//android.widget.EditText[@content-desc=\"Phone Number input field, mandatory\"]",
-      "business_unit_dropdown": "(//android.widget.TextView[@text=\"\"])[1]",
+      "business_unit_dropdown": "//android.widget.Button[@content-desc=\"Business Unit dropdown\"]",
       "search_business_unit": "//android.widget.Button[@content-desc=\"Please select a business unit\"]",
-      "field_agent_dropdown": "(//android.widget.TextView[@text=\"\"])[2]",
+      "field_agent_dropdown": "//android.widget.Button[@content-desc=\"Field Agent dropdown\"]",
       "submit_button_add_farmer": "//android.view.ViewGroup[@content-desc=\"Submit\"]",
       "cancel_button_add_farmer": "//android.view.ViewGroup[@content-desc=\"Cancel\"]"
     },
     "add_crop_screen": {
       "crop_name_dropdown": "//android.widget.Button[@content-desc=\"Crop Name dropdown\"]",
-      "crop_name": "//android.view.ViewGroup[contains(@content-desc,'Bengal Gram')]",
-      "short_duration_button": "//android.view.ViewGroup[@content-desc=\"Short (90 Days)\"]",
+      "crop_name": "//android.widget.Button[@content-desc=\"Arecanut\"]",
+      "inter_crop_name_dropdown": "//android.widget.Button[@content-desc=\"Inter-Crop Name dropdown\"]",
+      "inter_crop_name": "//android.widget.Button[@content-desc=\"Bengal Gram\"]",
+      "inter_crop_search_input": "//android.widget.EditText[@content-desc=\"Search Inter-Crop Name\"]",
+      "short_duration_button": "//android.widget.Button[@content-desc=\"Short (90 Days)\"]",
+      "inter_crop_short_duration_button": "//android.widget.Button[@content-desc=\"Short (90 Days)\"]",
       "long_duration_button": "//android.view.ViewGroup[@content-desc=\"Medium (120 Days)\"]",
       "medium_duration_button": "//android.view.ViewGroup[@content-desc=\"Long (150 Days)\"]",
       "direct_sowing_button": "//android.widget.TextView[@text=\"Direct Sowing\"]",
@@ -129,7 +133,8 @@
       "sowing_date": "(//android.widget.TextView[@text=\"\"])[2]",
       "calendar_ok_button": "//android.widget.Button[@resource-id=\"android:id/button1\"]",
       "transplanted_date": "(//android.widget.TextView[@text=\"\"])[1]",
-      "plantation_date": "//android.view.ViewGroup[@content-desc=\"Plantation Date *, --/--/----, \"]"
+      "plantation_date": "//android.view.ViewGroup[@content-desc=\"Plantation Date\"]",
+      "inter_crop_sowing_date": "//android.view.ViewGroup[@content-desc=\"Inter-Crop Sowing Date\"]"
     }
   }
 }

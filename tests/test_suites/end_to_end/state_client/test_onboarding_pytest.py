@@ -11,7 +11,7 @@ from appium.webdriver.common.appiumby import AppiumBy
 from utils.wait_utils import smart_click
 
 from tests.pages.state_client.state_client_onboarding_page import (
-    load_locators_once, add_button, add_farmer_button, farm_village_dropdown,
+    inter_crop_name_dropdown, inter_crop_name_item, inter_crop_name_search_input, inter_crop_short_duration_button, inter_crop_sowing_date_input, load_locators_once, add_button, add_farmer_button, farm_village_dropdown,
     farm_village_item, download_boundary_button, submit_village, search_by_bunds_lat_long_option, click_search_by_bunds_lat_long_input,
     enter_search_by_bunds_lat_long_value, select_bund, confirm_bunds_selection_button, crop_name_dropdown, crop_name_item, plantation_date,
     calendar_ok_button, submit_crop_button, add_farmer_name_input, add_farmer_phone_input, submit_button_add_farmer
@@ -38,24 +38,32 @@ class TestOnboarding:
                 add_button(driver, self, test_flow_steps)
                 add_farmer_button(driver, self, test_flow_steps)
                 farm_village_dropdown(driver, self, test_flow_steps)
-                # farm_village_item(driver, self, test_flow_steps)
-                # download_boundary_button(driver, self, test_flow_steps)
+                farm_village_item(driver, self, test_flow_steps)
+                download_boundary_button(driver, self, test_flow_steps)
                 # time.sleep(15)
-                # submit_village(driver, self, test_flow_steps)
-                # search_by_bunds_lat_long_option(driver, self, test_flow_steps)
-                # enter_search_by_bunds_lat_long_value(driver, self, test_flow_steps, "580")
-                # click_search_by_bunds_lat_long_input(driver, self, test_flow_steps)
-                # select_bund(driver, self, test_flow_steps)
-                # confirm_bunds_selection_button(driver, self, test_flow_steps)
+                submit_village(driver, self, test_flow_steps)
+                search_by_bunds_lat_long_option(driver, self, test_flow_steps)
+                enter_search_by_bunds_lat_long_value(driver, self, test_flow_steps, "581")
+                click_search_by_bunds_lat_long_input(driver, self, test_flow_steps)
+                select_bund(driver, self, test_flow_steps)
+                confirm_bunds_selection_button(driver, self, test_flow_steps)
                 # time.sleep(4)
-                # add_farmer_name_input(driver, self, test_flow_steps)
-                # add_farmer_phone_input(driver, self, test_flow_steps)
-                # submit_button_add_farmer(driver, self, test_flow_steps)
-                # crop_name_dropdown(driver, self, test_flow_steps)
-                # crop_name_item(driver, self, test_flow_steps)
-                # plantation_date(driver, self, test_flow_steps)
-                # calendar_ok_button(driver, self, test_flow_steps)
-                # submit_crop_button(driver, self, test_flow_steps)
+                add_farmer_name_input(driver, self, test_flow_steps)
+                add_farmer_phone_input(driver, self, test_flow_steps)
+                submit_button_add_farmer(driver, self, test_flow_steps)
+                crop_name_dropdown(driver, self, test_flow_steps)
+                crop_name_item(driver, self, test_flow_steps)
+                plantation_date(driver, self, test_flow_steps)
+                calendar_ok_button(driver, self, test_flow_steps)
+                inter_crop_name_dropdown(driver, self, test_flow_steps)
+                time.sleep(2)
+                inter_crop_name_search_input(driver, self, test_flow_steps)
+                time.sleep(2)
+                inter_crop_name_item(driver, self, test_flow_steps)
+                inter_crop_short_duration_button(driver, self, test_flow_steps)
+                inter_crop_sowing_date_input(driver, self, test_flow_steps)
+                calendar_ok_button(driver, self, test_flow_steps)
+                submit_crop_button(driver, self, test_flow_steps)
     
             finally:
                 os.makedirs("test-flows", exist_ok=True)

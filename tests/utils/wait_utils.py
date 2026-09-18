@@ -5,7 +5,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.common.appiumby import AppiumBy
-from utils.ocr_utils import click_element_by_ocr_text
+from utils.ocr_utils import click_element_by_ocr_text, find_text_box_on_screen, find_text_on_screen
 from selenium.common.exceptions import NoSuchElementException
 from appium.webdriver.common.appiumby import AppiumBy
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
@@ -128,6 +128,31 @@ def _xpath_literal(s: str) -> str:
     # concat('foo', "'", 'bar')
     parts = s.split("'")
     return "concat(" + ', "\'", '.join([f"'{p}'" for p in parts]) + ")"
+
+
+_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+_LOWER = "abcdefghijklmnopqrstuvwxyz"
+
+
+def _lowered(attr: str) -> str:
+    """XPath 1.0 expression for an attribute, whitespace-collapsed and lower-cased."""
+    return f"translate(normalize-space(@{attr}), '{_UPPER}', '{_LOWER}')"
+
+
+def _text_contains_xpath(text: str) -> str:
+    """Any element whose text or content-desc contains `text`, ignoring case."""
+    want = _xpath_literal(" ".join(text.split()).lower())
+    return f"//*[contains({_lowered('text')}, {want}) or contains({_lowered('content-desc')}, {want})]"
+
+
+def _label_xpaths(label: str):
+    """Elements labelled `label` by their text or content-desc, ignoring case:
+    exact matches first, then ones that start with it (e.g. "..., mandatory")."""
+    want = _xpath_literal(" ".join(label.split()).lower())
+    return [
+        f"//*[{_lowered('text')}={want} or {_lowered('content-desc')}={want}]",
+        f"//*[starts-with({_lowered('text')}, {want}) or starts-with({_lowered('content-desc')}, {want})]",
+    ]
 
 
 def _swipe_vertical_w3c(
@@ -288,21 +313,20 @@ def smart_find_element(
 
     # 3) Secondary Strategy: DOM Text Search (only if enabled)
     if fallback_text and enable_dom_fallback:
-        literal = _xpath_literal(fallback_text)
-        text_xpath = (
-            f"//*[contains(@text, {literal}) or contains(@content-desc, {literal})]"
-        )
+        # The primary xpath is checked again at every scroll position: an element
+        # below the fold only counts as displayed once it has been scrolled in.
+        # Text is matched ignoring case, and only on-screen elements count, so an
+        # off-screen node is never "found" and clicked where the user can't see it.
+        locators = [xpath, _text_contains_xpath(fallback_text)]
         print(f"   -> Attempting DOM fallback for text {fallback_text!r}...")
 
         last_source = None
         for i in range(max_swipes + 1):
-            try:
-                element = WebDriverWait(driver, per_try_wait_s).until(
-                    EC.presence_of_element_located((AppiumBy.XPATH, text_xpath))
-                )
-                print(f"   -> Found {fallback_text!r} via DOM search! Skipping OCR.")
+            _, element = wait_for_first_displayed(driver, locators, timeout=per_try_wait_s)
+            if element is not None:
+                print(f"   -> Found '{name}' at scroll position {i} via the element tree! Skipping OCR.")
                 return element, False
-            except TimeoutException:
+            else:
                 if not enable_scroll or i >= max_swipes:
                     break
 
@@ -1223,6 +1247,245 @@ def wait_until_displayed(driver, xpath, timeout=DEFAULT_WAIT_TIMEOUT,
         driver, [xpath], timeout=timeout, poll_interval=poll_interval, require_visible=require_visible
     )
     return element
+
+
+def _front_scroll_area(driver):
+    """Bounds of the front-most scrollable container — an open dropdown list sits
+    on top of the page and comes later in the hierarchy — or None."""
+    try:
+        boxes = [el for el in driver.find_elements(AppiumBy.XPATH, "//*[@scrollable='true']")
+                 if el.is_displayed()]
+    except Exception:
+        return None
+    for box in reversed(boxes):
+        rect = box.rect
+        if rect.get("width", 0) > 0 and rect.get("height", 0) > 0:
+            return rect
+    return None
+
+
+def _tap_at(driver, x, y):
+    try:
+        driver.execute_script("mobile: clickGesture", {"x": int(x), "y": int(y)})
+    except Exception:
+        driver.tap([(int(x), int(y))], 100)
+
+
+def _swipe_list(driver, area, direction):
+    """Swipe inside `area` (or the middle of the screen); "up" reveals rows below."""
+    if not area:
+        size = driver.get_window_size()
+        area = {"x": size["width"] * 0.1, "y": size["height"] * 0.25,
+                "width": size["width"] * 0.8, "height": size["height"] * 0.5}
+    driver.execute_script("mobile: swipeGesture", {
+        "left": int(area["x"]), "top": int(area["y"]),
+        "width": int(area["width"]), "height": int(area["height"]),
+        "direction": direction, "percent": 0.6,
+    })
+
+
+def _wait_until_still(driver, timeout=3, poll_interval=0.3):
+    """Page source once it stops changing (a fling has finished), or after `timeout`."""
+    deadline = time.time() + timeout
+    previous = driver.page_source
+    while time.time() < deadline:
+        time.sleep(poll_interval)
+        current = driver.page_source
+        if current == previous:
+            return current
+        previous = current
+    return previous
+
+
+def scroll_and_click_text(driver, name, text, xpath=None, max_swipes=10):
+    """Scroll a list until `text` is on screen, then tap it. True if tapped.
+
+    At each scroll position the element is looked for first (`xpath`, or a text /
+    content-desc equal to `text`), then OCR reads a screenshot of the list, for
+    labels the accessibility tree doesn't expose. Either way the tap is at the
+    label's position, like a user's. Scrolls down until the list stops moving,
+    then back up, so an item above the starting position is found too.
+    """
+    literal = _xpath_literal(text)
+    locators = [xpath] if xpath else []
+    locators.append(f"//*[@content-desc={literal} or @text={literal}]")
+    swipes = 0
+
+    for direction in ("up", "down"):
+        while True:
+            area = _front_scroll_area(driver)
+
+            _, element = wait_for_first_displayed(driver, locators, timeout=0)
+            if element is not None:
+                rect = element.rect
+                _console_log(f"[FOUND] '{text}' via the element tree")
+                _tap_at(driver, rect["x"] + rect["width"] / 2, rect["y"] + rect["height"] / 2)
+                return True
+
+            shot_path = _ocr_screenshot_path(driver, name, swipes + 1)
+            os.makedirs(os.path.dirname(shot_path) or ".", exist_ok=True)
+            driver.get_screenshot_as_file(shot_path)
+            region = (area["x"], area["y"], area["width"], area["height"]) if area else None
+            point = find_text_on_screen(shot_path, text, region=region)
+            if point:
+                _console_log(f"[FOUND] '{text}' via OCR at {point}")
+                _tap_at(driver, *point)
+                return True
+
+            if swipes >= max_swipes:
+                print(f"[ERROR] '{text}' not found after {swipes} swipe(s).")
+                return False
+            before = driver.page_source
+            _swipe_list(driver, area, direction)
+            swipes += 1
+            if _wait_until_still(driver) == before:
+                break  # the list no longer moves this way: try the other direction
+
+    print(f"[ERROR] '{text}' not found anywhere in the list ({swipes} swipe(s)).")
+    return False
+
+
+# Material Icons "event" glyph: the calendar icon drawn in the app's date fields
+# (the sowing_date / transplanted_date locators match it too).
+CALENDAR_ICON_GLYPH = ""
+DATE_PICKER_OK_XPATH = '//android.widget.Button[@resource-id="android:id/button1"]'
+
+
+def _centre(rect):
+    return rect["x"] + rect["width"] / 2, rect["y"] + rect["height"] / 2
+
+
+def _inside(point, area):
+    x, y = point
+    return (area["x"] <= x <= area["x"] + area["width"]
+            and area["y"] <= y <= area["y"] + area["height"])
+
+
+def _form_area(driver):
+    """Bounds of the largest scrollable on screen (the page's form), or the
+    whole window. Taps stay inside it, clear of fixed headers and footers."""
+    try:
+        rects = [el.rect for el in driver.find_elements(AppiumBy.XPATH, "//*[@scrollable='true']")
+                 if el.is_displayed()]
+    except Exception:
+        rects = []
+    rects = [r for r in rects if r.get("width", 0) > 0 and r.get("height", 0) > 0]
+    if rects:
+        return max(rects, key=lambda r: r["width"] * r["height"])
+    size = driver.get_window_size()
+    return {"x": 0, "y": 0, "width": size["width"], "height": size["height"]}
+
+
+def _calendar_icon_near(driver, rect, reach):
+    """Centre of the calendar icon belonging to the field at `rect`: the first one
+    from the top of `rect` down to `reach` px below it, or None."""
+    try:
+        icons = [el.rect for el in driver.find_elements(
+            AppiumBy.XPATH, f"//*[@text={_xpath_literal(CALENDAR_ICON_GLYPH)}]") if el.is_displayed()]
+    except Exception:
+        return None
+    top, bottom = rect["y"] - rect["height"] / 2, rect["y"] + rect["height"] + reach
+    below = [_centre(r) for r in icons if top <= _centre(r)[1] <= bottom]
+    return min(below, key=lambda point: point[1]) if below else None
+
+
+def _date_field_spots(driver, name, label, xpath, area, attempt, wait):
+    """Where to tap to open the date field labelled `label` at the current scroll
+    position, most direct first, as [(what, (x, y))]; [] if it isn't on screen."""
+    locators = {"field": xpath}
+    for i, label_xpath in enumerate(_label_xpaths(label)):
+        locators[f"label{i}"] = label_xpath
+    found, element = wait_for_first_displayed(driver, locators, timeout=wait)
+
+    spots, label_box, is_text_line = [], None, True
+    if element is not None:
+        if found == "field":
+            spots.append(("field", _centre(element.rect)))
+            _, labelled = wait_for_first_displayed(driver, _label_xpaths(label), timeout=0)
+        else:
+            labelled = element
+        if labelled is not None:
+            label_box = labelled.rect
+            try:
+                cls = labelled.get_attribute("class") or ""
+            except Exception:
+                cls = ""
+            # A label on the field container itself (content-desc, like the
+            # Plantation Date field) is tapped as the field; only a line of label
+            # text gets the "under the label" spot.
+            is_text_line = cls.endswith("TextView")
+            if not is_text_line:
+                spots.append(("field", _centre(label_box)))
+        _console_log(f"[FOUND] '{label}' via the element tree ({found})")
+    else:
+        shot_path = _ocr_screenshot_path(driver, name, attempt + 1)
+        os.makedirs(os.path.dirname(shot_path) or ".", exist_ok=True)
+        driver.get_screenshot_as_file(shot_path)
+        label_box = find_text_box_on_screen(
+            shot_path, label, region=(area["x"], area["y"], area["width"], area["height"]))
+        if label_box:
+            _console_log(f"[FOUND] '{label}' via OCR at {label_box}")
+
+    if label_box:
+        height = label_box["height"]
+        icon = _calendar_icon_near(driver, label_box, reach=3 * height if is_text_line else 0)
+        if icon:
+            spots.append(("calendar icon", icon))
+        if is_text_line:
+            x, _ = _centre(label_box)
+            # A floating label sits on the field's top border: one line-height
+            # under it is inside the box.
+            spots.append(("box under the label", (x, label_box["y"] + 2 * height)))
+            spots.append(("label", _centre(label_box)))
+
+    unique = []
+    for what, point in spots:
+        if _inside(point, area) and all(abs(point[0] - p[0]) + abs(point[1] - p[1]) > 10 for _, p in unique):
+            unique.append((what, point))
+    return unique
+
+
+def open_date_picker(driver, name, label, xpath=None, picker_xpath=DATE_PICKER_OK_XPATH,
+                     max_swipes=8, timeout=5, verify_timeout=4):
+    """Scroll the form to the date field labelled `label` and tap it until its date
+    picker opens. True once the picker is showing.
+
+    At every scroll position the field is looked for by `xpath`, then by any element
+    whose text or content-desc is `label` (ignoring case), then by OCR of the label
+    on a screenshot, so a stale locator doesn't matter once the field is on screen.
+    Spots are tapped in turn (the field, its calendar icon, the box under the label,
+    the label) and a tap only counts if the picker appears, so a spot that doesn't
+    react is followed by the next one instead of a false pass. `timeout` is how long
+    the starting position waits for the screen to render; the field is then searched
+    for below and above.
+    """
+    swipes, wait = 0, timeout
+    for direction in ("up", "down"):
+        while True:
+            area = _form_area(driver)
+            spots = _date_field_spots(driver, name, label, xpath, area, swipes, wait)
+            wait = 0
+            if spots:
+                for what, (x, y) in spots:
+                    _console_log(f"[{name}] tapping the {what} at ({int(x)}, {int(y)})")
+                    _tap_at(driver, x, y)
+                    if wait_until_displayed(driver, picker_xpath, timeout=verify_timeout) is not None:
+                        _console_log(f"[OK] '{label}' date picker opened (tapped the {what})")
+                        return True
+                print(f"[ERROR] '{label}' is on screen but {len(spots)} tap(s) did not open the date picker.")
+                return False
+
+            if swipes >= max_swipes:
+                print(f"[ERROR] '{label}' not found after {swipes} swipe(s).")
+                return False
+            before = driver.page_source
+            _swipe_list(driver, area, direction)
+            swipes += 1
+            if _wait_until_still(driver) == before:
+                break  # the form no longer moves this way: try the other direction
+
+    print(f"[ERROR] '{label}' not found anywhere on the form ({swipes} swipe(s)).")
+    return False
 
 
 def wait_for_otp_filled(driver, otp_xpath, expected_length=6, timeout=30):

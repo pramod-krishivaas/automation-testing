@@ -679,28 +679,68 @@ def _build_description(error_text: str, steps: list) -> str:
 
 
 # ── Crash detection ───────────────────────────────────────────────────────────
+# logcat "threadtime" line: date time PID TID level tag: message
+_LOGCAT_LINE = re.compile(r"^\d\d-\d\d\s+[\d:.]+\s+(\d+)\s+(\d+)\s+([VDIWEF])\s+(.*?)\s*:\s(.*)$")
+_MAX_CRASH_LINES = 80
+
+
+def _app_package(driver) -> Optional[str]:
+    """Package of the app under test (UiAutomator2 reads it from the APK)."""
+    caps = getattr(driver, "capabilities", None) or {}
+    return caps.get("appPackage") or caps.get("appium:appPackage")
+
+
+def _crash_blocks(lines: List[str], package: str) -> List[str]:
+    """Crash reports for `package` in logcat `lines`: each block is the line that
+    names the crash plus the rest of the same thread's output (its stack trace)."""
+    parsed = [_LOGCAT_LINE.match(line) for line in lines]
+    blocks = []
+    for i, line in enumerate(lines):
+        m = parsed[i]
+        tag, msg = (m.group(4), m.group(5)) if m else ("", line)
+        if "FATAL EXCEPTION" in msg:
+            # Java/React Native crash: the next lines say whose it is,
+            # "Process: <package>, PID: <pid>".
+            if not any(f"Process: {package}," in later for later in lines[i + 1:i + 4]):
+                continue
+        elif not (
+            f"ANR in {package}" in msg              # app not responding
+            or f">>> {package} <<<" in msg          # native crash (tombstone header)
+            or (tag == "am_crash" and package in msg)
+        ):
+            continue
+        block = [f"CRASH START: {line}"]
+        thread = m.group(1, 2) if m else None
+        for j in range(i + 1, len(lines)):
+            if len(block) >= _MAX_CRASH_LINES:
+                break
+            same_thread = thread is not None and parsed[j] is not None and parsed[j].group(1, 2) == thread
+            if same_thread or package in lines[j]:
+                block.append(lines[j])
+        blocks.append("\n".join(block))
+    return blocks
+
+
 def check_for_crashes(driver):
+    """The app's crash reports in logcat since the last check, or None.
+
+    logcat covers the whole device, so only lines that are about the app under
+    test count: a FATAL EXCEPTION whose "Process:" is the app, a native crash or
+    an ANR naming it. Other processes starting and exiting are routine and are
+    ignored, e.g. MIUI Security Center's "I AndroidRuntime: VM exiting with
+    result code 0, cleanup skipped" when the system clears it from memory.
+    """
     try:
         logs = driver.get_log("logcat")
-        sigs = [
-            "fatal exception", "force removing activity", "androidruntime",
-            "beginning of crash", "am_crash", "anr in", "vm aborting",
-        ]
-        crash_lines, capture = [], False
-        for entry in logs:
-            msg   = entry.get("message", "")
-            lower = msg.lower()
-            if not capture:
-                if any(s in lower for s in sigs):
-                    capture = True
-                    crash_lines.append(f"CRASH START: {msg}")
-            else:
-                if len(crash_lines) < 80:
-                    crash_lines.append(msg)
-        return "\n".join(crash_lines) if crash_lines else None
     except Exception as e:
         print("Logcat crash detection failed:", e)
         return None
+    package = _app_package(driver)
+    if not package:
+        print("[crash-check] App package unknown; skipping logcat crash detection.")
+        return None
+    blocks = _crash_blocks([entry.get("message", "") for entry in logs], package)
+    return "\n\n".join(blocks) if blocks else None
 
 
 # ── Send payload to backend ───────────────────────────────────────────────────

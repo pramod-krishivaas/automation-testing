@@ -10,8 +10,8 @@ from appium.webdriver.common.appiumby import AppiumBy
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException, NoSuchElementException
-from tests.utils.wait_utils import smart_click, scroll_up_and_tap_by_text
-from utils.ui_actions import android_back_func, smart_send_keys, generate_mobile_number
+from tests.utils.wait_utils import open_date_picker, smart_click, scroll_and_click_text, wait_until_displayed
+from utils.ui_actions import android_back_func, generate_mobile_number, set_input_value
 
 sys.dont_write_bytecode = True
 
@@ -90,6 +90,11 @@ def load_locators_once(self, request):
     request.cls.calendar_ok_button_xpath = resolve("add_crop_screen", "calendar_ok_button")
     request.cls.transplanted_date_xpath = resolve("add_crop_screen", "transplanted_date")
     request.cls.plantation_date_xpath = resolve("add_crop_screen", "plantation_date")
+    request.cls.inter_crop_name_dropdown_xpath = resolve("add_crop_screen", "inter_crop_name_dropdown")
+    request.cls.inter_crop_name_item_xpath = resolve("add_crop_screen", "inter_crop_name")
+    request.cls.inter_crop_short_duration_button_xpath = resolve("add_crop_screen", "inter_crop_short_duration_button")
+    request.cls.inter_crop_sowing_date_xpath = resolve("add_crop_screen", "inter_crop_sowing_date")
+    request.cls.inter_crop_name_search_input_xpath = resolve("add_crop_screen", "inter_crop_search_input")
 
 # ===========================================================================
 # TestOnboarding class — kept for backward compatibility
@@ -129,7 +134,7 @@ def add_farmer_button(driver, obj, test_flow_steps):
 
 def add_farmer_name_input(driver, obj, test_flow_steps):
     with allure.step("1. Enter Farmer Name"):
-        if not smart_send_keys(
+        if not set_input_value(
             driver, obj.add_farmer_name_xpath, "John Doe", element_name="Farmer Name input"
         ):
             pytest.fail("Could not find or interact with the 'Farmer Name' input field.")
@@ -137,7 +142,7 @@ def add_farmer_name_input(driver, obj, test_flow_steps):
 
 def add_farmer_phone_input(driver, obj, test_flow_steps):
     with allure.step("1. Enter Farmer Phone"):
-        if not smart_send_keys(
+        if not set_input_value(
             driver, obj.add_farmer_phone_xpath, generate_mobile_number(), element_name="Farmer Phone input"
         ):
             pytest.fail("Could not find or interact with the 'Farmer Phone' input field.")
@@ -188,12 +193,13 @@ def submit_village(driver, obj, test_flow_steps):
 # ===========================================================================
 
 def search_by_bunds_lat_long_option(driver, obj, test_flow_steps):
-    with allure.step("1. Click Search by bunds/Latitude/Longitude option"):
-        if not smart_click(
-            driver, "Search by bunds/Latitude/Longitude option", obj.search_by_bunds_lat_long_option_xpath, "Search by bunds/Latitude/Longitude"
-        ):
-            pytest.fail("Could not find or click the 'Search by bunds/Latitude/Longitude' option.")
-        test_flow_steps.append({"step": "Click Search by bunds/Latitude/Longitude option", "status": "Success"})
+    with allure.step("1. Check the Search by bunds/Latitude/Longitude field is shown"):
+        # Not tapped: this locator is the search EditText itself, so a tap only
+        # focuses it and opens the keyboard. enter_search_by_bunds_lat_long_value
+        # sets the text without focusing it.
+        if wait_until_displayed(driver, obj.search_by_bunds_lat_long_option_xpath) is None:
+            pytest.fail("The 'Search by bunds/Latitude/Longitude' field is not shown.")
+        test_flow_steps.append({"step": "Search by bunds/Latitude/Longitude field shown", "status": "Success"})
 
 def click_search_by_bunds_lat_long_input(driver, obj, test_flow_steps):
     with allure.step("1. Click Search by bunds/Latitude/Longitude input"):
@@ -203,29 +209,13 @@ def click_search_by_bunds_lat_long_input(driver, obj, test_flow_steps):
             pytest.fail("Could not find or click the 'Search by bunds/Latitude/Longitude' input.")
         test_flow_steps.append({"step": "Click Search by bunds/Latitude/Longitude input", "status": "Success"})
 
-def enter_search_by_bunds_lat_long_value(driver, obj, test_flow_steps, value="580"):
+def enter_search_by_bunds_lat_long_value(driver, obj, test_flow_steps, value="581"):
     with allure.step(f"1. Enter '{value}' in Search by bunds/Latitude/Longitude field"):
-        # smart_click can't type (it only clicks / OCR-taps), so grab the real element
-        # and send keys into it.
-        try:
-            field = WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located(
-                    (AppiumBy.XPATH, obj.search_by_bunds_lat_long_option_xpath)
-                )
-            )
-        except Exception:
+        if not set_input_value(
+            driver, obj.search_by_bunds_lat_long_option_xpath, value,
+            element_name="Search by bunds/Latitude/Longitude field",
+        ):
             pytest.fail("Could not find the 'Search by bunds/Latitude/Longitude' input field to type into.")
-
-        try:
-            field.click()   # focus the field before typing
-        except Exception:
-            pass
-        try:
-            field.clear()   # drop any pre-filled value so we don't append to it
-        except Exception:
-            pass
-
-        field.send_keys(str(value))
         test_flow_steps.append(
             {"step": f"Enter '{value}' in Search by bunds/Latitude/Longitude field", "status": "Success"}
         )
@@ -258,21 +248,35 @@ def crop_name_dropdown(driver, obj, test_flow_steps):
             pytest.fail("Could not find or click the 'Crop name dropdown' field.")
         test_flow_steps.append({"step": "Click crop name dropdown", "status": "Success"})
 
+def inter_crop_name_dropdown(driver, obj, test_flow_steps):
+    with allure.step("4. Click Inter-Crop Name dropdown"):
+        if not smart_click(
+            driver, "Inter-Crop name dropdown", obj.inter_crop_name_dropdown_xpath, "Select Inter-Crop Name"
+        ):
+            pytest.fail("Could not find or click the 'Inter-Crop name dropdown' field.")
+        test_flow_steps.append({"step": "Click inter-crop name dropdown", "status": "Success"})
 
 def crop_name_item(driver, obj, test_flow_steps):
-    with allure.step("5. Select crop from dropdown (OCR)"):
-        if not smart_click(
-            driver,
-            "select crop from dropdown (OCR)",
-            obj.crop_name_item_xpath,
-            "Arecanut",
-            screenshot_path="screenshots/crop_dropdown.png",
-            force_ocr=True,
-            ocr_attempts=3,
-        ):
-            pytest.fail("Could not select the crop name via OCR.")
+    with allure.step("5. Select crop from dropdown"):
+        # Scrolls the open list until the crop is found: element tree first, then OCR.
+        if not scroll_and_click_text(driver, "crop dropdown", "Arecanut", xpath=obj.crop_name_item_xpath):
+            pytest.fail("Could not find 'Arecanut' in the crop list.")
         test_flow_steps.append({"step": "Click Crop Name item", "status": "Success"})
 
+def inter_crop_name_item(driver, obj, test_flow_steps):
+    with allure.step("5. Select inter-crop from dropdown"):
+        # Scrolls the open list until the crop is found: element tree first, then OCR.
+        if not scroll_and_click_text(driver, "inter-crop dropdown", "Bengal Gram", xpath=obj.inter_crop_name_item_xpath):
+            pytest.fail("Could not find 'Bengal Gram' in the inter-crop list.")
+        test_flow_steps.append({"step": "Click Inter-Crop Name item", "status": "Success"})
+
+def inter_crop_name_search_input(driver, obj, test_flow_steps):
+    with allure.step("1. Enter Inter-Crop Name"):
+        if not set_input_value(
+            driver, obj.inter_crop_name_search_input_xpath, "Bengal Gram", element_name="Inter-Crop Name input"
+        ):
+            pytest.fail("Could not find or interact with the 'Inter-Crop Name' input field.")
+        test_flow_steps.append({"step": "Enter Inter-Crop Name", "status": "Success"})
 
 def plantation_date(driver, obj, test_flow_steps):
     with allure.step("6. Click Plantation Date input"):
@@ -301,30 +305,6 @@ def transplanted_date(driver, obj, test_flow_steps):
             {"step": "Click transplanted date input", "status": "Success"}
         )
 
-
-def intercrop_name(driver, obj, test_flow_steps):
-    with allure.step("6. Click Inter-Crop Name input field"):
-        if not smart_click(
-            driver, "Inter-Crop Name input", obj.intercrop_name_xpath, "Inter-Crop Name"
-        ):
-            pytest.fail("Could not find or click the 'Inter Crop Name' input field.")
-        test_flow_steps.append(
-            {"step": "Click Inter Crop Name input", "status": "Success"}
-        )
-
-
-def intercrop_dropdown(driver, obj, test_flow_steps):
-
-    with allure.step("7. Select intercrop from dropdown"):
-        time.sleep(3)
-        # Scroll until crop becomes visible and tap dynamically
-        if not scroll_up_and_tap_by_text(driver, text_to_find="Beetroot", max_swipes=5):
-            pytest.fail("Could not find/select intercrop name after scrolling.")
-            test_flow_steps.append(
-                {"step": "Select Intercrop Name item", "status": "Success"}
-            )
-
-
 def sowing_date_input(driver, obj, test_flow_steps):
     with allure.step("8. Click Sowing Date input"):
         if not smart_click(
@@ -336,6 +316,30 @@ def sowing_date_input(driver, obj, test_flow_steps):
             pytest.fail("Could not find or click the 'Sowing date input' field.")
         test_flow_steps.append({"step": "Click sowing date input", "status": "Success"})
 
+def inter_crop_sowing_date_input(driver, obj, test_flow_steps):
+    with allure.step("8. Click Inter-Crop Sowing Date input"):
+        # Found by its on-screen label at every scroll position, and tapped until the
+        # date picker opens (calendar_ok_button then picks the date).
+        if not open_date_picker(
+            driver,
+            "Inter-Crop Sowing date input",
+            "Inter-Crop Sowing Date",
+            xpath=obj.inter_crop_sowing_date_xpath,
+            picker_xpath=obj.calendar_ok_button_xpath,
+        ):
+            pytest.fail("Could not find or open the 'Inter-Crop Sowing Date' field.")
+        test_flow_steps.append({"step": "Click inter-crop sowing date input", "status": "Success"})
+
+def inter_crop_short_duration_button(driver, obj, test_flow_steps):
+    with allure.step("8. Click Inter-Crop Short Duration button"):
+        if not smart_click(
+            driver,
+            "Inter-Crop Short Duration button",
+            obj.inter_crop_short_duration_button_xpath,
+            "Inter-Crop Short Duration button",
+        ):
+            pytest.fail("Could not find or click the 'Inter-Crop Short Duration button' field.")
+        test_flow_steps.append({"step": "Click inter-crop short duration button", "status": "Success"})
 
 def calendar_ok_button(driver, obj, test_flow_steps):
     with allure.step("9. Click OK on calendar"):
@@ -385,7 +389,6 @@ def cancel_button(driver, obj, test_flow_steps):
                 "status": "Success",
             }
         )
-
 
 def android_back(driver, obj, test_flow_steps):
     # ── Step 10: Android back ──────────────────────────────────────────

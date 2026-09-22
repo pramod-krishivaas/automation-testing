@@ -21,6 +21,7 @@
       "business_unit_dropdown": "(//android.widget.TextView[@text=\"\"])[1]",
       "search_business_unit": "//android.widget.Button[@content-desc=\"Please select a business unit\"]",
       "field_agent_dropdown": "(//android.widget.TextView[@text=\"\"])[2]",
+      "field_agent_dropdown_item": "Field Agent dropdown",
       "submit_button_add_farmer": "Submit",
       "cancel_button_add_farmer": "Cancel"
     },
@@ -37,6 +38,10 @@
       "calendar_ok_button": "//android.widget.Button[@resource-id=\"android:id/button1\"]",
       "transplanted_date": "(//android.widget.TextView[@text=\"\"])[1]",
       "plantation_date": "Plantation Date"
+    },
+    "draw_boundary_screen": {
+      "save_boundary_button": "Save Boundary",
+      "draw_boundary_button": "Draw on Map"
     }
   },
   "element_ids": {
@@ -77,6 +82,10 @@
       "calendar_ok_button": "android:id/button1",
       "transplanted_date": "(//android.widget.TextView[@text=\"\"])[1]",
       "plantation_date": "plantation-date-input"
+    },
+    "draw_boundary_screen": {
+      "save_boundary_button": "save-boundary-button",
+      "draw_boundary_button": "draw-on-map-button"
     }
   },
   "xpath_locators": {
@@ -114,8 +123,13 @@
       "business_unit_dropdown": "//android.widget.Button[@content-desc=\"Business Unit dropdown\"]",
       "search_business_unit": "//android.widget.Button[@content-desc=\"Please select a business unit\"]",
       "field_agent_dropdown": "//android.widget.Button[@content-desc=\"Field Agent dropdown\"]",
+      "field_agent_dropdown_item": "//android.widget.Button[@content-desc=\"Pramod FA\"]",
       "submit_button_add_farmer": "//android.view.ViewGroup[@content-desc=\"Submit\"]",
       "cancel_button_add_farmer": "//android.view.ViewGroup[@content-desc=\"Cancel\"]"
+    },
+    "add_farm_screen": {
+      "submit_button_add_farm": "//android.view.ViewGroup[@content-desc=\"Submit\"]",
+      "cancel_button_add_farm": "//android.view.ViewGroup[@content-desc=\"Cancel\"]"
     },
     "add_crop_screen": {
       "crop_name_dropdown": "//android.widget.Button[@content-desc=\"Crop Name dropdown\"]",
@@ -135,6 +149,12 @@
       "transplanted_date": "(//android.widget.TextView[@text=\"\"])[1]",
       "plantation_date": "//android.view.ViewGroup[@content-desc=\"Plantation Date\"]",
       "inter_crop_sowing_date": "//android.view.ViewGroup[@content-desc=\"Inter-Crop Sowing Date\"]"
+    },
+    "draw_boundary_screen": {
+      "save_boundary_button": "//android.view.ViewGroup[@content-desc=\"Save Boundary\"]",
+      "draw_boundary_button": "//android.view.ViewGroup[@content-desc=\"Draw on map, 󰗠\"]",
+      "search-input": "//android.widget.EditText[@resource-id=\"location-search-input\"]",
+      "search-result": "//android.view.ViewGroup[@content-desc=\"Medak\"]"
     }
   }
 }

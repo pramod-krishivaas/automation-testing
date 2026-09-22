@@ -1,46 +1,14 @@
 [
     {
+        "step": "Set device location to 17.318983, 78.224683",
+        "status": "Success"
+    },
+    {
         "step": "Click Add button",
         "status": "Success"
     },
     {
         "step": "Click Add Farmer button",
-        "status": "Success"
-    },
-    {
-        "step": "Click Farm village dropdown",
-        "status": "Success"
-    },
-    {
-        "step": "Click Farm village item",
-        "status": "Success"
-    },
-    {
-        "step": "Click Download Boundary button",
-        "status": "Success"
-    },
-    {
-        "step": "Click Submit village",
-        "status": "Success"
-    },
-    {
-        "step": "Search by bunds/Latitude/Longitude field shown",
-        "status": "Success"
-    },
-    {
-        "step": "Enter '581' in Search by bunds/Latitude/Longitude field",
-        "status": "Success"
-    },
-    {
-        "step": "Click Search by bunds/Latitude/Longitude input",
-        "status": "Success"
-    },
-    {
-        "step": "Select bund from search results",
-        "status": "Success"
-    },
-    {
-        "step": "Confirm bunds selection",
         "status": "Success"
     },
     {
@@ -52,7 +20,23 @@
         "status": "Success"
     },
     {
+        "step": "Click Field Agent dropdown",
+        "status": "Success"
+    },
+    {
+        "step": "Select Field Agent",
+        "status": "Success"
+    },
+    {
         "step": "Click Submit button on Add Farmer screen",
+        "status": "Success"
+    },
+    {
+        "step": "Click Draw boundary",
+        "status": "Success"
+    },
+    {
+        "step": "Click Submit button on Add Farm screen",
         "status": "Success"
     },
     {
@@ -97,6 +81,14 @@
     },
     {
         "step": "Click Submit crop",
+        "status": "Success"
+    },
+    {
+        "step": "Draw Boundary on Map (mock GPS)",
+        "status": "Success"
+    },
+    {
+        "step": "Click Save boundary",
         "status": "Success"
     }
 ]

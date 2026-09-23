@@ -1,0 +1,23 @@
+{
+  "ticket_id": "RUN-20260923-095152",
+  "issue_id": "ISS-001",
+  "app_name": "Krishivaas",
+  "app_version": "2.5.1",
+  "module": "Onboarding",
+  "feature": "Authentication",
+  "issue_summary": "Automation Failure: test_add_new_farmer_farm_crop_flow",
+  "title": "Automation Failure: test_add_new_farmer_farm_crop_flow",
+  "test_name": "test_add_new_farmer_farm_crop_flow",
+  "steps_executed": [],
+  "developer_name": "pramod",
+  "description": ">               pytest.fail(\"Could not find or interact with the 'Farmer Phone' input field.\")\nFailed: Could not find or interact with the 'Farmer Phone' input field.",
+  "start_date": "2026-09-23T09:53:21.199942",
+  "end_date": "2026-09-23T09:54:36.623080",
+  "sprint": "Automation",
+  "fix_version": [
+    "Production"
+  ],
+  "affects_version": [
+    "Krishivaas"
+  ]
+}

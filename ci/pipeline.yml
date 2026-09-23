@@ -15,7 +15,7 @@ app_variants:
     enabled: false
   - name: regular_farmer
     priority: 3
-    enabled: false
+    enabled: true
   - name: regular_client
     priority: 4
     enabled: true

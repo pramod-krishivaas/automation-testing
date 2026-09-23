@@ -1,34 +1,10 @@
 [
     {
-        "step": "Set device location to 17.318983, 78.224683",
+        "step": "Set device location to 17.327966, 78.215274",
         "status": "Success"
     },
     {
-        "step": "Click Add button",
-        "status": "Success"
-    },
-    {
-        "step": "Click Add Farmer button",
-        "status": "Success"
-    },
-    {
-        "step": "Enter Farmer Name",
-        "status": "Success"
-    },
-    {
-        "step": "Enter Farmer Phone",
-        "status": "Success"
-    },
-    {
-        "step": "Click Field Agent dropdown",
-        "status": "Success"
-    },
-    {
-        "step": "Select Field Agent",
-        "status": "Success"
-    },
-    {
-        "step": "Click Submit button on Add Farmer screen",
+        "step": "Click Add Farm button",
         "status": "Success"
     },
     {
@@ -89,94 +65,6 @@
     },
     {
         "step": "Click Save boundary",
-        "status": "Success"
-    },
-    {
-        "step": "Click Farm village item",
-        "status": "Success"
-    },
-    {
-        "step": "Click Download Boundary button",
-        "status": "Success"
-    },
-    {
-        "step": "Click Submit village",
-        "status": "Success"
-    },
-    {
-        "step": "Search by bunds/Latitude/Longitude field shown",
-        "status": "Success"
-    },
-    {
-        "step": "Enter '581' in Search by bunds/Latitude/Longitude field",
-        "status": "Success"
-    },
-    {
-        "step": "Click Search by bunds/Latitude/Longitude input",
-        "status": "Success"
-    },
-    {
-        "step": "Select bund from search results",
-        "status": "Success"
-    },
-    {
-        "step": "Confirm bunds selection",
-        "status": "Success"
-    },
-    {
-        "step": "Enter Farmer Name",
-        "status": "Success"
-    },
-    {
-        "step": "Enter Farmer Phone",
-        "status": "Success"
-    },
-    {
-        "step": "Click Submit button on Add Farmer screen",
-        "status": "Success"
-    },
-    {
-        "step": "Click crop name dropdown",
-        "status": "Success"
-    },
-    {
-        "step": "Click Crop Name item",
-        "status": "Success"
-    },
-    {
-        "step": "Click plantation date input",
-        "status": "Success"
-    },
-    {
-        "step": "Click OK button on calendar",
-        "status": "Success"
-    },
-    {
-        "step": "Click inter-crop name dropdown",
-        "status": "Success"
-    },
-    {
-        "step": "Enter Inter-Crop Name",
-        "status": "Success"
-    },
-    {
-        "step": "Click Inter-Crop Name item",
-        "status": "Success"
-    },
-    {
-        "step": "Click inter-crop short duration button",
-        "status": "Success"
-    },
-    {
-        "step": "Click inter-crop sowing date input",
-        "status": "Success"
-    },
-    {
-        "step": "Click OK button on calendar",
-        "status": "Success"
-    },
-    {
-        "step": "Click Submit crop",
         "status": "Success"
     }
 ]

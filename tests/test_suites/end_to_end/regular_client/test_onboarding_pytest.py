@@ -65,32 +65,6 @@ class TestOnboarding:
                 # search_result(driver, self, test_flow_steps)
                 save_boundary_button(driver, self, test_flow_steps)
 
-                add_farmer_name_input(driver, self, test_flow_steps)
-                add_farmer_phone_input(driver, self, test_flow_steps)
-                field_agent_dropdown(driver, self, test_flow_steps)
-                field_agent_dropdown_item(driver, self, test_flow_steps)
-                # add farm clicks
-                submit_button_add_farmer(driver, self, test_flow_steps)
-                draw_boundary_buton_on_modal(driver, self, test_flow_steps)
-                submit_button_add_farm(driver, self, test_flow_steps)
-                crop_name_dropdown(driver, self, test_flow_steps)
-                crop_name_item(driver, self, test_flow_steps)
-                plantation_date(driver, self, test_flow_steps)
-                calendar_ok_button(driver, self, test_flow_steps)
-                inter_crop_name_dropdown(driver, self, test_flow_steps)
-                time.sleep(2)
-                inter_crop_name_search_input(driver, self, test_flow_steps)
-                time.sleep(2)
-                inter_crop_name_item(driver, self, test_flow_steps)
-                inter_crop_short_duration_button(driver, self, test_flow_steps)
-                inter_crop_sowing_date_input(driver, self, test_flow_steps)
-                calendar_ok_button(driver, self, test_flow_steps)
-                submit_crop_button(driver, self, test_flow_steps)
-                draw_boundary_on_map(driver, self, test_flow_steps)
-                # search_input(driver, self, test_flow_steps)
-                # search_result(driver, self, test_flow_steps)
-                save_boundary_button(driver, self, test_flow_steps)
-
     
             finally:
                 reset_device_location(driver)

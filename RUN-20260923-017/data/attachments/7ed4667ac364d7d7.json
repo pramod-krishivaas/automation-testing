@@ -1,0 +1,23 @@
+{
+  "ticket_id": "RUN-20260923-122037",
+  "issue_id": "ISS-001",
+  "app_name": "Krishivaas",
+  "app_version": "2.5.1",
+  "module": "Onboarding",
+  "feature": "Authentication",
+  "issue_summary": "Automation Failure: test_add_new_farmer_farm_crop_flow",
+  "title": "Automation Failure: test_add_new_farmer_farm_crop_flow",
+  "test_name": "test_add_new_farmer_farm_crop_flow",
+  "steps_executed": [],
+  "developer_name": "pramod",
+  "description": "pytest.fail(\"The app is not on screen any more: it stopped before the boundary could be \"\npytest.fail(\"The map is blank where the boundary goes, so there is nothing to draw on: \"\npytest.fail(\"No free spot for the boundary: the mocked location and the fallback \"\nit can't turn into a double-tap). Raises AssertionError if a corner never shows.\n>               raise AssertionError(f\"Corner {i} at ({x}, {y}) never showed on the map after {attempts} taps.\")\nAssertionError: Corner 1 at (314, 1011) never showed on the map after 2 taps.\ntests/utils/location_utils.py:276: AssertionError\nexcept AssertionError as e:\n>               pytest.fail(f\"Could not draw all 4 boundary corners: {e}{gone}\")\nFailed: Could not draw all 4 boundary corners: Corner 1 at (314, 1011) never showed on the map after 2 taps. The app is no longer on screen: it crashed while drawing.",
+  "start_date": "2026-09-23T12:21:29.155863",
+  "end_date": "2026-09-23T12:23:26.618983",
+  "sprint": "Automation",
+  "fix_version": [
+    "Production"
+  ],
+  "affects_version": [
+    "Krishivaas"
+  ]
+}

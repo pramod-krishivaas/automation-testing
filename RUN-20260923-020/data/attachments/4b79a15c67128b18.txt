@@ -1,0 +1,29 @@
+CRASH START: 09-23 12:55:47.370  5557  6306 E AndroidRuntime: FATAL EXCEPTION: Thread-14
+09-23 12:55:47.370  5557  6306 E AndroidRuntime: Process: com.krishivaasstatefarmers, PID: 5557
+09-23 12:55:47.370  5557  6306 E AndroidRuntime: java.lang.NoClassDefFoundError: Failed resolution of: Lorg/apache/http/ProtocolVersion;
+09-23 12:55:47.370  5557  6306 E AndroidRuntime: 	at cg.b(:com.google.android.gms.dynamite_mapsdynamite@201817056@20.18.17 (040800-0):2)
+09-23 12:55:47.370  5557  6306 E AndroidRuntime: 	at cf.a(:com.google.android.gms.dynamite_mapsdynamite@201817056@20.18.17 (040800-0):1)
+09-23 12:55:47.370  5557  6306 E AndroidRuntime: 	at ch.a(:com.google.android.gms.dynamite_mapsdynamite@201817056@20.18.17 (040800-0):15)
+09-23 12:55:47.370  5557  6306 E AndroidRuntime: 	at com.google.maps.api.android.lib6.drd.aj.a(:com.google.android.gms.dynamite_mapsdynamite@201817056@20.18.17 (040800-0):4)
+09-23 12:55:47.370  5557  6306 E AndroidRuntime: 	at bn.a(:com.google.android.gms.dynamite_mapsdynamite@201817056@20.18.17 (040800-0):6)
+09-23 12:55:47.370  5557  6306 E AndroidRuntime: 	at bn.run(:com.google.android.gms.dynamite_mapsdynamite@201817056@20.18.17 (040800-0):2)
+09-23 12:55:47.370  5557  6306 E AndroidRuntime: Caused by: java.lang.ClassNotFoundException: Didn't find class "org.apache.http.ProtocolVersion" on path: DexPathList[[zip file "/data/user_de/0/com.google.android.gms/app_chimera/m/00000006/MapsDynamite.apk"],nativeLibraryDirectories=[/data/user_de/0/com.google.android.gms/app_chimera/m/00000006/n/x86_64, /data/user_de/0/com.google.android.gms/app_chimera/m/00000006/n/arm64-v8a, /system/lib64, /system_ext/lib64]]
+09-23 12:55:47.370  5557  6306 E AndroidRuntime: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:207)
+09-23 12:55:47.370  5557  6306 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:379)
+09-23 12:55:47.370  5557  6306 E AndroidRuntime: 	at ax.loadClass(:com.google.android.gms.dynamite_dynamiteloader@201817056@20.18.17 (040800-0):3)
+09-23 12:55:47.370  5557  6306 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:312)
+09-23 12:55:47.370  5557  6306 E AndroidRuntime: 	... 6 more
+09-23 12:55:47.373   500  1862 W ActivityTaskManager:   Force finishing activity com.krishivaasstatefarmers/.MainActivity
+09-23 12:55:47.444  5557  6306 I Process : Sending signal. PID: 5557 SIG: 9
+09-23 12:55:47.528   500  1868 I ActivityManager: Process com.krishivaasstatefarmers (pid 5557) has died: prcp TOP 
+09-23 12:55:47.534   500  1869 D ConnectivityService: ConnectivityService NetworkRequestInfo binderDied(NetworkRequest [ TRACK_DEFAULT id=37, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10171 AdministratorUids: [] RequestorUid: 10171 RequestorPackageName: com.krishivaasstatefarmers] ], android.os.BinderProxy@e91e1c)
+09-23 12:55:47.535   500  1860 D AutofillSession: handling death of Token{7f5d826 ActivityRecord{eeccc67 u0 com.krishivaasstatefarmers/.MainActivity t10 f}}} when saving=false
+09-23 12:55:47.535   500   647 D ConnectivityService: releasing NetworkRequest [ TRACK_DEFAULT id=37, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10171 AdministratorUids: [] RequestorUid: 10171 RequestorPackageName: com.krishivaasstatefarmers] ] (release request)
+09-23 12:55:47.548   500   530 I WindowManager: WIN DEATH: Window{ddeb274 u0 com.krishivaasstatefarmers/com.krishivaasstatefarmers.MainActivity}
+09-23 12:55:47.553   500   530 W InputDispatcher: Attempted to unregister already unregistered input channel 'ddeb274 com.krishivaasstatefarmers/com.krishivaasstatefarmers.MainActivity (server)'
+09-23 12:55:47.554   500  1866 I WindowManager: WIN DEATH: Window{6bf2c18 u0 com.krishivaasstatefarmers/com.krishivaasstatefarmers.MainActivity}
+09-23 12:55:47.554   500  1866 W InputDispatcher: Attempted to unregister already unregistered input channel '6bf2c18 com.krishivaasstatefarmers/com.krishivaasstatefarmers.MainActivity (server)'
+09-23 12:55:47.558   500   534 V OneTimePermissionUserManager: Importance changed for com.krishivaasstatefarmers (10171). importance=1000
+09-23 12:55:47.558   500   534 V OneTimePermissionUserManager: Importance changed for com.krishivaasstatefarmers (10171). importance=1000
+09-23 12:55:52.564   500   500 I OneTimePermissionUserManager: One time session expired for com.krishivaasstatefarmers (10171).
+09-23 12:55:52.574   726   759 V PermissionControllerServiceImpl: Permission grant result requestId=-5862125676435775663 callingUid=10171 callingPackage=com.krishivaasstatefarmers permission=android.permission.CAMERA isImplicit=false result=15

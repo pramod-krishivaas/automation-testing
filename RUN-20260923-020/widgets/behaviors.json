@@ -1,0 +1,1 @@
+{"total":2,"items":[{"uid":"b1891e56455ea745acf97b3399c15019","name":"Onboarding Flow","statistic":{"failed":1,"broken":0,"skipped":0,"passed":0,"unknown":0,"total":1}},{"uid":"a2387865cbf9e994f1e56f598b0473a8","name":"Login Flow","statistic":{"failed":0,"broken":0,"skipped":0,"passed":1,"unknown":0,"total":1}}]}

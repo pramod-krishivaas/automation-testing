@@ -9,13 +9,13 @@
 app_variants:
   - name: state_client
     priority: 1
-    enabled: true
+    enabled: false
   - name: state_farmer
     priority: 2
     enabled: false
   - name: regular_farmer
     priority: 3
-    enabled: true
+    enabled: false
   - name: regular_client
     priority: 4
     enabled: true

@@ -8,7 +8,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.common.appiumby import AppiumBy
 
-from utils.wait_utils import smart_click
 from utils.location_utils import reset_device_location
 
 from tests.pages.regular_farmer.regular_farmer_onboarding_page import (

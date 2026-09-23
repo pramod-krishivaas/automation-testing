@@ -50,6 +50,13 @@ annotate_crashes() {
   # Workflow-command encoding: % and newlines must be escaped.
   echo "::warning title=Crash signals in logcat::$(printf '%s\n' "$lines" \
     | awk '{ gsub(/\r/, ""); gsub(/%/, "%25"); printf "%s%s", (NR > 1 ? "%0A" : ""), substr($0, 1, 300) }')"
+  # A crash that is about the emulator image rather than the app or the tests.
+  if grep -q "org/apache/http" "$OUT_DIR/logcat.txt" && grep -q "mapsdynamite" "$OUT_DIR/logcat.txt"; then
+    echo "::error title=Google Maps crashed the app::This image's Play services uses the legacy Maps"\
+"renderer, which needs org.apache.http - not available to apps targeting API 28+ unless they declare"\
+"it. Run with a newer android_api_level (34+), or have the app add"\
+" <uses-library android:name=%22org.apache.http.legacy%22 android:required=%22false%22/>."
+  fi
 }
 
 # Cleanup runs however this script exits, including a failure below (spec §27).
@@ -65,6 +72,29 @@ if [ "$online" -ne 1 ]; then
 fi
 echo "Boot completed: $(adb shell getprop sys.boot_completed | tr -d '\r')"
 echo "Android       : $(adb shell getprop ro.build.version.release | tr -d '\r')"
+
+# Play services comes with the system image and can't be updated here. Before
+# 22.x its Google Maps renderer needs org.apache.http, which apps targeting API
+# 28+ only get if they declare it — otherwise the app dies when a map opens.
+GMS_VERSION=$(adb shell dumpsys package com.google.android.gms 2>/dev/null \
+  | sed -n 's/.*versionName=\([0-9][0-9.]*\).*/\1/p' | head -1 | tr -d '\r')
+echo "Play services : ${GMS_VERSION:-unknown}"
+case "${GMS_VERSION%%.*}" in
+  ''|*[!0-9]*) ;;
+  *) if [ "${GMS_VERSION%%.*}" -lt 22 ]; then
+       echo "::warning title=Old Play services on this emulator image::Play services ${GMS_VERSION}"\
+"uses the legacy Google Maps renderer, which crashes apps that don't declare org.apache.http.legacy."\
+"Suites that open a map need a newer android_api_level (34+)."
+     fi ;;
+esac
+
+# Keep the screen from rotating: a configuration change recreates the activity,
+# which some React Native screens don't survive.
+adb shell settings put system accelerometer_rotation 0 >/dev/null 2>&1
+adb shell settings put system user_rotation 0 >/dev/null 2>&1
+# Same reason: never destroy an activity as soon as it goes to the background
+# (e.g. behind a permission dialog).
+adb shell settings put global always_finish_activities 0 >/dev/null 2>&1
 
 # Stream logcat for the whole run: by the end, the device's small ring buffers
 # have usually overwritten the lines from when the app first launched.

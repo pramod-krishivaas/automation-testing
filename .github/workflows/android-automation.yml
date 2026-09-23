@@ -73,6 +73,10 @@ env:
   APPIUM_PORT: "4723"
   # Emulator defaults; a trigger can override device/API per run.
   ANDROID_DEVICE: pixel_7
+  # API 34, not 30: the API 30 image ships Google Play services 20.18.17, whose
+  # legacy Google Maps renderer needs org.apache.http and crashes the app on the
+  # "Draw on map" screen (apps targeting API 28+ don't get that library unless
+  # they declare it). Newer images carry a renderer that doesn't need it.
   ANDROID_API_LEVEL: "30"
   ANDROID_TARGET: google_apis
   ANDROID_ARCH: x86_64

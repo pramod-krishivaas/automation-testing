@@ -65,8 +65,8 @@ execution:
 
 emulator:
   # Overridable per run from the workflow inputs / trigger payload.
-  device: pixel_7
-  api_level: 34
+  device: pixel_8
+  api_level: 30
   target: google_apis
   arch: x86_64
 

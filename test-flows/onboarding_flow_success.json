@@ -1,34 +1,10 @@
 [
     {
-        "step": "Set device location to 17.318983, 78.224683",
+        "step": "Set device location to 17.327966, 78.215274",
         "status": "Success"
     },
     {
-        "step": "Click Add button",
-        "status": "Success"
-    },
-    {
-        "step": "Click Add Farmer button",
-        "status": "Success"
-    },
-    {
-        "step": "Enter Farmer Name",
-        "status": "Success"
-    },
-    {
-        "step": "Enter Farmer Phone",
-        "status": "Success"
-    },
-    {
-        "step": "Click Field Agent dropdown",
-        "status": "Success"
-    },
-    {
-        "step": "Select Field Agent",
-        "status": "Success"
-    },
-    {
-        "step": "Click Submit button on Add Farmer screen",
+        "step": "Click Add Farm button",
         "status": "Success"
     },
     {

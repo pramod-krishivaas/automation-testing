@@ -128,6 +128,7 @@
       "cancel_button_add_farmer": "//android.view.ViewGroup[@content-desc=\"Cancel\"]"
     },
     "add_farm_screen": {
+      "add_farm_btn": "//android.view.ViewGroup[@content-desc=\"Add Farm\"]",
       "submit_button_add_farm": "//android.view.ViewGroup[@content-desc=\"Submit\"]",
       "cancel_button_add_farm": "//android.view.ViewGroup[@content-desc=\"Cancel\"]"
     },

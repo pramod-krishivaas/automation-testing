@@ -13,8 +13,9 @@ from selenium.common.exceptions import WebDriverException, NoSuchElementExceptio
 from tests.utils.wait_utils import open_date_picker, smart_click, scroll_and_click_text, wait_until_displayed
 from utils.ui_actions import android_back_func, generate_mobile_number, set_input_value
 from utils.location_utils import (
-    BOUNDARY_PX_ALLOWED, boundary_corners, boundary_pixels, cell_location, cells_for_run, run_minute, search_place,
-    set_device_location, tap_boundary_corners, wait_for_app_location, wait_for_map_to_settle,
+    BOUNDARY_PX_ALLOWED, boundary_corners, boundary_pixels, cell_location, cells_for_run, drag_map,
+    emptiest_side, run_minute, search_place, set_device_location, tap_boundary_corners,
+    wait_for_app_location, wait_for_map_to_settle,
 )
 
 sys.dont_write_bytecode = True
@@ -361,33 +362,42 @@ def set_run_location(driver, obj, test_flow_steps):
                                 "status": "Success" if obj.mock_location_set else "Skipped"})
 
 
-def _free_spot_for_boundary(driver, obj, box, max_cells=3, max_places=5):
+def _free_spot_for_boundary(driver, obj, box, tries=3, max_places=5):
     """Put the map on ground with no existing boundary around `box` (screen area of
     the new boundary); returns how, or None.
 
-    Tries this run's mock-GPS cell, then (if the current-location button is known,
-    to recentre the map) the next cells, then places by name.
+    First this run's mock-GPS cell. If that spot is taken, the map is moved and
+    checked again, up to `tries` in total: to the next cell when the map's
+    current-location button is known, otherwise by dragging the map towards the
+    side showing the fewest boundaries. After that, places are searched by name.
     """
     locate = getattr(obj, "current_location_button_xpath", None)
     cells = getattr(obj, "location_cells", None) or cells_for_run(TEST_AREA_RINGS)
-    for i, cell in enumerate(cells[:max_cells]):
-        lat, lng = cell_location(TEST_AREA_CENTER, cell, TEST_AREA_CELL_M)
-        if i > 0 and not locate:
-            print("[location] no current_location_button locator, so the map can't follow a new cell")
-            break
-        if (i > 0 or not getattr(obj, "mock_location_set", False)) and not set_device_location(driver, lat, lng):
-            break
-        seen = wait_for_app_location(driver, lat, lng)
-        if seen is False:
-            break  # the app ignores the mocked GPS: search by place name instead
-        if locate:
-            smart_click(driver, "current location button", locate, timeout=5)
+    for i in range(tries):
+        cell, where = cells[i % len(cells)], None
+        if i == 0 or locate:
+            lat, lng = cell_location(TEST_AREA_CENTER, cell, TEST_AREA_CELL_M)
+            if (i > 0 or not getattr(obj, "mock_location_set", False)) and not set_device_location(driver, lat, lng):
+                break
+            seen = wait_for_app_location(driver, lat, lng)
+            if seen is False:
+                break  # the app ignores the mocked GPS: search by place name instead
+            if locate:
+                smart_click(driver, "current location button", locate, timeout=5)
+            where = {"method": "mock GPS", "cell": cell, "latitude": lat, "longitude": lng,
+                     "app_showed_location": seen is True}
+        else:
+            # No way to recentre on another cell, so move across the ground the map
+            # is already showing, towards where it shows the fewest boundaries.
+            side = emptiest_side(driver)
+            if not drag_map(driver, side):
+                break
+            where = {"method": "dragged the map", "towards": side, "from_cell": cells[0]}
         wait_for_map_to_settle(driver, box, min_wait=3)
         found = boundary_pixels(driver, box)
         if found <= BOUNDARY_PX_ALLOWED:
-            return {"method": "mock GPS", "cell": cell, "latitude": lat, "longitude": lng,
-                    "app_showed_location": seen is True}
-        print(f"[location] cell {cell} ({lat}, {lng}) already has a boundary ({found} px); trying the next")
+            return where
+        print(f"[location] try {i + 1}/{tries}: this spot already has a boundary ({found} px)")
 
     start = run_minute() % len(FALLBACK_PLACES)
     for place in (FALLBACK_PLACES[start:] + FALLBACK_PLACES[:start])[:max_places]:

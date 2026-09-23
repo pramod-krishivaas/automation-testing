@@ -18,7 +18,7 @@ from appium.webdriver.common.appiumby import AppiumBy
 from selenium.common.exceptions import WebDriverException
 
 from utils.ui_actions import set_input_value
-from utils.wait_utils import _xpath_literal, wait_until_displayed
+from utils.wait_utils import _xpath_literal, wait_for_first_displayed, wait_until_displayed
 
 sys.dont_write_bytecode = True
 
@@ -264,23 +264,84 @@ def tap_boundary_corners(driver, corners, closing_taps=2, attempts=2, confirm_ti
     return tries
 
 
-# ── fallback: search a place by name ─────────────────────────────────────────
-def search_place(driver, search_input_xpath, place, timeout=15):
-    """Search the map for `place` and pick its result. True if a result was tapped."""
-    literal, with_comma = _xpath_literal(place), _xpath_literal(place + ",")
-    result_xpath = f"//*[@content-desc={literal} or starts-with(@content-desc, {with_comma})]"
-    if not set_input_value(driver, search_input_xpath, place, element_name="Search Location"):
+# ── moving the map to other ground ───────────────────────────────────────────
+def emptiest_side(driver):
+    """Which side of the map shows the fewest existing boundaries ("left", "right",
+    "up" or "down"): the direction with the best chance of free ground."""
+    left, top, right, bottom = map_bounds(driver)
+    hsv = cv2.cvtColor(_crop(_screenshot(driver), (left, top, right, bottom)), cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv, BOUNDARY_HSV_LOW, BOUNDARY_HSV_HIGH)
+    h, w = mask.shape
+    share = {"left": mask[:, :w // 3].mean(), "right": mask[:, -(w // 3):].mean(),
+             "up": mask[:h // 3].mean(), "down": mask[-(h // 3):].mean()}
+    return min(share, key=share.get)
+
+
+def drag_map(driver, side, fraction=0.6):
+    """Drag the map to bring more of `side` into view."""
+    left, top, right, bottom = map_bounds(driver)
+    cx, cy = (left + right) / 2, (top + bottom) / 2
+    half_x, half_y = (right - left) * fraction / 2, (bottom - top) * fraction / 2
+    sx, sy = {"right": (1, 0), "left": (-1, 0), "down": (0, 1), "up": (0, -1)}[side]
+    start = (cx + sx * half_x, cy + sy * half_y)
+    end = (cx - sx * half_x, cy - sy * half_y)
+    try:
+        driver.execute_script("mobile: dragGesture", {
+            "startX": int(start[0]), "startY": int(start[1]),
+            "endX": int(end[0]), "endY": int(end[1]), "speed": 1200})
+    except WebDriverException as e:
+        print(f"[location] could not drag the map: {e.msg if hasattr(e, 'msg') else e}")
         return False
-    result = wait_until_displayed(driver, result_xpath, timeout=timeout)
+    print(f"[location] dragged the map to show more {side}")
+    return True
+
+
+# ── fallback: search a place by name ─────────────────────────────────────────
+_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+_LOWER = "abcdefghijklmnopqrstuvwxyz"
+
+
+def _result_locators(place, result_xpath=None):
+    """Locators for a search result for `place`, most specific first. The search box
+    holds the same text, so EditTexts are excluded."""
+    exact, lowered = _xpath_literal(place), _xpath_literal(place.lower())
+
+    def any_case(attr):
+        return f"contains(translate(@{attr}, '{_UPPER}', '{_LOWER}'), {lowered})"
+
+    return [x for x in (result_xpath,
+                        f"//*[@content-desc={exact} or @text={exact}]",
+                        f"//*[not(self::android.widget.EditText)][{any_case('content-desc')} or {any_case('text')}]") if x]
+
+
+def search_place(driver, search_input_xpath, place, result_xpath=None, timeout=10):
+    """Search the map for `place` and open the first result. True if one was tapped.
+
+    The box is focused and the name typed, so its own change events fire and the
+    results list opens; a result is anything (other than the box) showing that name.
+    If nothing appears, the keyboard's search action is sent before giving up.
+    """
+    field = wait_until_displayed(driver, search_input_xpath, timeout=5)
+    if field is None:
+        print("[location] the map's search box is not on screen")
+        return False
+    field.click()  # focus: the results list only opens for the focused box
+    try:
+        field.clear()
+        field.send_keys(place)  # typed, so the app sees each change
+    except WebDriverException:
+        if not set_input_value(driver, search_input_xpath, place, element_name="Search Location"):
+            return False
+    locators = _result_locators(place, result_xpath)
+    name, result = wait_for_first_displayed(driver, locators, timeout=timeout)
     if result is None:
-        # The results list may only open while the box has focus: focus it and retype.
-        field = wait_until_displayed(driver, search_input_xpath, timeout=2)
-        if field is not None:
-            field.click()
-            set_input_value(driver, search_input_xpath, place, element_name="Search Location")
-            result = wait_until_displayed(driver, result_xpath, timeout=timeout)
+        try:  # some screens only search when the keyboard's search key is pressed
+            driver.execute_script("mobile: performEditorAction", {"action": "search"})
+        except WebDriverException:
+            pass
+        name, result = wait_for_first_displayed(driver, locators, timeout=timeout)
     if result is None:
-        print(f"[location] no search result for {place!r}")
+        print(f"[location] no search result for {place!r} (tried {len(locators)} locators)")
         return False
     result.click()
     try:
@@ -288,5 +349,5 @@ def search_place(driver, search_input_xpath, place, timeout=15):
             driver.hide_keyboard()
     except WebDriverException:
         pass
-    print(f"[location] map moved to the search result for {place!r}")
+    print(f"[location] map moved to the search result for {place!r} (locator {name})")
     return True

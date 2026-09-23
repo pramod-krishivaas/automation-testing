@@ -1,0 +1,23 @@
+{
+  "ticket_id": "RUN-20260923-112006",
+  "issue_id": "ISS-001",
+  "app_name": "Krishivaas",
+  "app_version": "2.5.1",
+  "module": "Onboarding",
+  "feature": "Authentication",
+  "issue_summary": "Automation Failure: test_add_new_farmer_farm_crop_flow",
+  "title": "Automation Failure: test_add_new_farmer_farm_crop_flow",
+  "test_name": "test_add_new_farmer_farm_crop_flow",
+  "steps_executed": [],
+  "developer_name": "pramod",
+  "description": ">               pytest.fail(\"No free spot for the boundary: the mocked location and the fallback \"\nFailed: No free spot for the boundary: the mocked location and the fallback places all show existing boundaries (or couldn't be reached).",
+  "start_date": "2026-09-23T11:20:50.425675",
+  "end_date": "2026-09-23T11:22:08.520661",
+  "sprint": "Automation",
+  "fix_version": [
+    "Production"
+  ],
+  "affects_version": [
+    "Krishivaas"
+  ]
+}

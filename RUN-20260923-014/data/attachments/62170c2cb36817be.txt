@@ -1,0 +1,27 @@
+CRASH START: 09-23 11:18:44.058  6171  6870 E AndroidRuntime: FATAL EXCEPTION: Thread-13
+09-23 11:18:44.058  6171  6870 E AndroidRuntime: Process: com.krishivaasstatefarmers, PID: 6171
+09-23 11:18:44.058  6171  6870 E AndroidRuntime: java.lang.NoClassDefFoundError: Failed resolution of: Lorg/apache/http/ProtocolVersion;
+09-23 11:18:44.058  6171  6870 E AndroidRuntime: 	at cg.b(:com.google.android.gms.dynamite_mapsdynamite@201817056@20.18.17 (040800-0):2)
+09-23 11:18:44.058  6171  6870 E AndroidRuntime: 	at cf.a(:com.google.android.gms.dynamite_mapsdynamite@201817056@20.18.17 (040800-0):1)
+09-23 11:18:44.058  6171  6870 E AndroidRuntime: 	at ch.a(:com.google.android.gms.dynamite_mapsdynamite@201817056@20.18.17 (040800-0):15)
+09-23 11:18:44.058  6171  6870 E AndroidRuntime: 	at com.google.maps.api.android.lib6.drd.aj.a(:com.google.android.gms.dynamite_mapsdynamite@201817056@20.18.17 (040800-0):4)
+09-23 11:18:44.058  6171  6870 E AndroidRuntime: 	at bn.a(:com.google.android.gms.dynamite_mapsdynamite@201817056@20.18.17 (040800-0):6)
+09-23 11:18:44.058  6171  6870 E AndroidRuntime: 	at bn.run(:com.google.android.gms.dynamite_mapsdynamite@201817056@20.18.17 (040800-0):2)
+09-23 11:18:44.058  6171  6870 E AndroidRuntime: Caused by: java.lang.ClassNotFoundException: Didn't find class "org.apache.http.ProtocolVersion" on path: DexPathList[[zip file "/data/user_de/0/com.google.android.gms/app_chimera/m/00000006/MapsDynamite.apk"],nativeLibraryDirectories=[/data/user_de/0/com.google.android.gms/app_chimera/m/00000006/n/x86_64, /data/user_de/0/com.google.android.gms/app_chimera/m/00000006/n/arm64-v8a, /system/lib64, /system_ext/lib64]]
+09-23 11:18:44.058  6171  6870 E AndroidRuntime: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:207)
+09-23 11:18:44.058  6171  6870 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:379)
+09-23 11:18:44.058  6171  6870 E AndroidRuntime: 	at ax.loadClass(:com.google.android.gms.dynamite_dynamiteloader@201817056@20.18.17 (040800-0):3)
+09-23 11:18:44.058  6171  6870 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:312)
+09-23 11:18:44.058  6171  6870 E AndroidRuntime: 	... 6 more
+09-23 11:18:44.107   505  1870 W ActivityTaskManager:   Force finishing activity com.krishivaasstatefarmers/.MainActivity
+09-23 11:18:44.164  6171  6870 I Process : Sending signal. PID: 6171 SIG: 9
+09-23 11:18:44.252   505   543 D ConnectivityService: ConnectivityService NetworkRequestInfo binderDied(NetworkRequest [ TRACK_DEFAULT id=40, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10171 AdministratorUids: [] RequestorUid: 10171 RequestorPackageName: com.krishivaasstatefarmers] ], android.os.BinderProxy@6457546)
+09-23 11:18:44.254   505   696 D ConnectivityService: releasing NetworkRequest [ TRACK_DEFAULT id=40, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Uid: 10171 AdministratorUids: [] RequestorUid: 10171 RequestorPackageName: com.krishivaasstatefarmers] ] (release request)
+09-23 11:18:44.255   505  1873 I ActivityManager: Process com.krishivaasstatefarmers (pid 6171) has died: prcp TOP 
+09-23 11:18:44.257   505   543 D AutofillSession: handling death of Token{ce1a04a ActivityRecord{f52437d u0 com.krishivaasstatefarmers/.MainActivity t10 f}}} when saving=false
+09-23 11:18:44.265   505  1872 I WindowManager: WIN DEATH: Window{e4512a3 u0 com.krishivaasstatefarmers/com.krishivaasstatefarmers.MainActivity}
+09-23 11:18:44.266   505  1872 W InputDispatcher: Attempted to unregister already unregistered input channel 'e4512a3 com.krishivaasstatefarmers/com.krishivaasstatefarmers.MainActivity (server)'
+09-23 11:18:44.298   505   546 V OneTimePermissionUserManager: Importance changed for com.krishivaasstatefarmers (10171). importance=1000
+09-23 11:18:44.299   505   546 V OneTimePermissionUserManager: Importance changed for com.krishivaasstatefarmers (10171). importance=1000
+09-23 11:18:49.304   505   505 I OneTimePermissionUserManager: One time session expired for com.krishivaasstatefarmers (10171).
+09-23 11:18:49.322  5653  5673 V PermissionControllerServiceImpl: Permission grant result requestId=5901029790896802966 callingUid=10171 callingPackage=com.krishivaasstatefarmers permission=android.permission.CAMERA isImplicit=false result=15

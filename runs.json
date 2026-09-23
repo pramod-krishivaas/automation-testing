@@ -1,5 +1,22 @@
 [
   {
+    "run_id": "RUN-20260923-014",
+    "app_name": "Krishivaas",
+    "app_slug": "krishivaas",
+    "app_version": "2.5.1",
+    "build_id": "125",
+    "environment": "staging",
+    "developer": "pramod",
+    "status": "FAILED",
+    "failure_category": "TEST_FAILURE",
+    "passed": 3,
+    "failed": 3,
+    "skipped": 0,
+    "duration_seconds": 528.9,
+    "finished_at": "2026-09-23T11:24:56+00:00",
+    "workflow_url": "https://github.com/pramod-krishivaas/automation-testing/actions/runs/35853036786"
+  },
+  {
     "run_id": "RUN-20260923-013",
     "app_name": "Krishivaas",
     "app_slug": "krishivaas",

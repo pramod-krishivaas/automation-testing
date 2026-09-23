@@ -473,8 +473,7 @@ def draw_boundary_on_map(driver, obj, test_flow_steps):
         try:
             tap_boundary_corners(driver, corners, closing_taps=2)
         except AssertionError as e:
-            gone = "" if app_is_foreground(driver) else " The app is no longer on screen: it crashed while drawing."
-            pytest.fail(f"Could not draw all 4 boundary corners: {e}{gone}")
+            pytest.fail(f"Could not draw all 4 boundary corners: {e}")
         test_flow_steps.append({"step": f"Draw Boundary on Map ({spot['method']})", "status": "Success"})
 
 def save_approve_boundary(driver, obj, test_flow_steps):

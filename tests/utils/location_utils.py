@@ -271,6 +271,9 @@ def tap_boundary_corners(driver, corners, closing_taps=2, attempts=2, confirm_ti
             if shown:
                 tries.append(attempt)
                 break
+            if not app_is_foreground(driver):
+                raise AssertionError(f"The app closed while drawing corner {i}: it crashed "
+                                     f"(see the 'Crash Logs' attachment).")
             print(f"[boundary] corner {i} at ({x}, {y}) didn't show on the map; tapping it again")
         else:
             raise AssertionError(f"Corner {i} at ({x}, {y}) never showed on the map after {attempts} taps.")

@@ -72,7 +72,7 @@ env:
   UIAUTOMATOR2_DRIVER_VERSION: "8.1.0"
   APPIUM_PORT: "4723"
   # Emulator defaults; a trigger can override device/API per run.
-  ANDROID_DEVICE: pixel_8
+  ANDROID_DEVICE: pixel_7
   ANDROID_API_LEVEL: "30"
   ANDROID_TARGET: google_apis
   ANDROID_ARCH: x86_64

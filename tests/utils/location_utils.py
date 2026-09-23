@@ -170,6 +170,23 @@ def wait_for_map_to_settle(driver, box, timeout=20, min_wait=2.0, poll=1.0):
     return False
 
 
+def app_is_foreground(driver):
+    """Is the app under test still the app on screen? False once it has crashed."""
+    package = (getattr(driver, "capabilities", None) or {}).get("appPackage")
+    if not package:
+        return True  # unknown: don't block the run
+    try:
+        return driver.current_package == package
+    except WebDriverException:
+        return True
+
+
+def map_has_rendered(driver, box):
+    """Has the map drawn anything in `box`? A blank, flat area means the map never
+    rendered, and tapping there would land on nothing."""
+    return float(_crop(_screenshot(driver), box).std()) > 8.0
+
+
 def boundary_pixels(driver, box, margin=24):
     """Pixels of existing (green) boundaries in `box` plus `margin` on screen."""
     hsv = cv2.cvtColor(_crop(_screenshot(driver), box, margin), cv2.COLOR_BGR2HSV)

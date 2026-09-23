@@ -13,7 +13,8 @@ from selenium.common.exceptions import WebDriverException, NoSuchElementExceptio
 from tests.utils.wait_utils import open_date_picker, smart_click, scroll_and_click_text, wait_until_displayed
 from utils.ui_actions import android_back_func, generate_mobile_number, set_input_value
 from utils.location_utils import (
-    BOUNDARY_PX_ALLOWED, boundary_corners, boundary_pixels, cell_location, cells_for_run, drag_map,
+    BOUNDARY_PX_ALLOWED, app_is_foreground, boundary_corners, boundary_pixels, cell_location, cells_for_run, drag_map,
+    map_has_rendered,
     emptiest_side, run_minute, search_place, set_device_location, tap_boundary_corners,
     wait_for_app_location, wait_for_map_to_settle,
 )
@@ -451,8 +452,17 @@ def draw_boundary_on_map(driver, obj, test_flow_steps):
         corners = boundary_corners(driver)
         xs, ys = [x for x, _ in corners], [y for _, y in corners]
         box = (min(xs), min(ys), max(xs), max(ys))
-        # Waits for the map to load, then makes sure no existing boundary (green)
-        # is where this one goes: this run's mock-GPS cell, else a place by name.
+        # The app has to be on screen with the map drawn: otherwise a crashed app or
+        # a map that never loaded looks like free ground and every tap goes nowhere.
+        if not app_is_foreground(driver):
+            pytest.fail("The app is not on screen any more: it stopped before the boundary could be "
+                        "drawn (see the 'Crash Logs' attachment).")
+        wait_for_map_to_settle(driver, box, min_wait=3)
+        if not map_has_rendered(driver, box):
+            pytest.fail("The map is blank where the boundary goes, so there is nothing to draw on: "
+                        "the map did not load on this device.")
+        # Then makes sure no existing boundary (green) is where this one goes: this
+        # run's mock-GPS cell, else a place by name.
         spot = _free_spot_for_boundary(driver, obj, box)
         if spot is None:
             pytest.fail("No free spot for the boundary: the mocked location and the fallback "
@@ -463,7 +473,8 @@ def draw_boundary_on_map(driver, obj, test_flow_steps):
         try:
             tap_boundary_corners(driver, corners, closing_taps=2)
         except AssertionError as e:
-            pytest.fail(f"Could not draw all 4 boundary corners: {e}")
+            gone = "" if app_is_foreground(driver) else " The app is no longer on screen: it crashed while drawing."
+            pytest.fail(f"Could not draw all 4 boundary corners: {e}{gone}")
         test_flow_steps.append({"step": f"Draw Boundary on Map ({spot['method']})", "status": "Success"})
 
 def save_approve_boundary(driver, obj, test_flow_steps):

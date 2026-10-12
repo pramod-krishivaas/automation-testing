@@ -76,22 +76,24 @@ def load_locators_once(self, request):
 
     # ── add crop screen ──────────────────────────────────────────────────────
     request.cls.crop_name_dropdown_xpath = resolve("add_crop_screen", "crop_name_dropdown")
-    request.cls.crop_name_item_xpath = resolve("add_crop_screen", "crop_name")
+    request.cls.perennial_crop_name_item_xpath = resolve("add_crop_screen", "perennial_crop_name_item")
+    request.cls.seasonal_crop_name_item_xpath = resolve("add_crop_screen", "seasonal_crop_name_item")
     request.cls.short_duration_button_xpath = resolve("add_crop_screen", "short_duration_button")
     request.cls.long_duration_button_xpath = resolve("add_crop_screen", "long_duration_button")
     request.cls.medium_duration_button_xpath = resolve("add_crop_screen", "medium_duration_button")
     request.cls.direct_sowing_button_xpath = resolve("add_crop_screen", "direct_sowing_button")
-    request.cls.transplanted_button_xpath = resolve("add_crop_screen", "transplanted_button")
+    request.cls.transplanted_btn_xpath = resolve("add_crop_screen", "transplanted_button")
     request.cls.submit_crop_button_xpath = resolve("add_crop_screen", "submit_crop_button")
     request.cls.sowing_date_xpath = resolve("add_crop_screen", "sowing_date")
     request.cls.calendar_ok_button_xpath = resolve("add_crop_screen", "calendar_ok_button")
-    request.cls.transplanted_date_xpath = resolve("add_crop_screen", "transplanted_date")
+    request.cls.transplanted_date_input_xpath = resolve("add_crop_screen", "transplanted_date")
     request.cls.plantation_date_xpath = resolve("add_crop_screen", "plantation_date")
     request.cls.inter_crop_name_dropdown_xpath = resolve("add_crop_screen", "inter_crop_name_dropdown")
     request.cls.inter_crop_name_item_xpath = resolve("add_crop_screen", "inter_crop_name")
     request.cls.inter_crop_short_duration_button_xpath = resolve("add_crop_screen", "inter_crop_short_duration_button")
     request.cls.inter_crop_sowing_date_xpath = resolve("add_crop_screen", "inter_crop_sowing_date")
     request.cls.inter_crop_name_search_input_xpath = resolve("add_crop_screen", "inter_crop_search_input")
+    request.cls.crop_name_search_input_xpath = resolve("add_crop_screen", "crop_search_input")
     request.cls.skip_crop_button_xpath = resolve("add_crop_screen", "skip_crop_button")
 
     # ─────── draw boundary screen ─────────────────────────────────────────────────────────────────────
@@ -218,12 +220,27 @@ def inter_crop_name_dropdown(driver, obj, test_flow_steps):
             pytest.fail("Could not find or click the 'Inter-Crop name dropdown' field.")
         test_flow_steps.append({"step": "Click inter-crop name dropdown", "status": "Success"})
 
-def crop_name_item(driver, obj, test_flow_steps):
-    with allure.step("5. Select crop from dropdown"):
+def perennial_crop_name_item(driver, obj, test_flow_steps):
+    with allure.step("5. Select perennial crop from dropdown"):
         # Scrolls the open list until the crop is found: element tree first, then OCR.
-        if not scroll_and_click_text(driver, "crop dropdown", "Arecanut", xpath=obj.crop_name_item_xpath):
+        if not scroll_and_click_text(driver, "crop dropdown", "Arecanut", xpath=obj.perennial_crop_name_item_xpath):
             pytest.fail("Could not find 'Arecanut' in the crop list.")
         test_flow_steps.append({"step": "Click Crop Name item", "status": "Success"})
+
+def seasonal_crop_name_item(driver, obj, test_flow_steps):
+    with allure.step("5. Select seasonal crop from dropdown"):
+        # Scrolls the open list until the crop is found: element tree first, then OCR.
+        if not scroll_and_click_text(driver, "crop dropdown", "Paddy", xpath=obj.seasonal_crop_name_item_xpath):
+            pytest.fail("Could not find 'Paddy' in the crop list.")
+        test_flow_steps.append({"step": "Click Crop Name item", "status": "Success"})
+
+def transplanted_btn(driver, obj, test_flow_steps):
+    with allure.step("1. Click Transplanted button"):
+        if not smart_click(
+            driver, "Transplanted button", obj.transplanted_btn_xpath, "Transplanted"
+        ):
+            pytest.fail("Could not find or click the 'Transplanted' button.")
+        test_flow_steps.append({"step": "Click Transplanted button", "status": "Success"})
 
 def inter_crop_name_item(driver, obj, test_flow_steps):
     with allure.step("5. Select inter-crop from dropdown"):
@@ -231,6 +248,14 @@ def inter_crop_name_item(driver, obj, test_flow_steps):
         if not scroll_and_click_text(driver, "inter-crop dropdown", "Bengal Gram", xpath=obj.inter_crop_name_item_xpath):
             pytest.fail("Could not find 'Bengal Gram' in the inter-crop list.")
         test_flow_steps.append({"step": "Click Inter-Crop Name item", "status": "Success"})
+
+def crop_name_search_input(driver, obj, test_flow_steps):
+    with allure.step("1. Enter Crop Name"):
+        if not set_input_value(
+            driver, obj.crop_name_search_input_xpath, "Paddy", element_name="Crop Name input"
+        ):
+            pytest.fail("Could not find or interact with the 'Crop Name' input field.")
+        test_flow_steps.append({"step": "Enter Crop Name", "status": "Success"})
 
 def inter_crop_name_search_input(driver, obj, test_flow_steps):
     with allure.step("1. Enter Inter-Crop Name"):
@@ -254,7 +279,7 @@ def plantation_date(driver, obj, test_flow_steps):
         )
 
 
-def transplanted_date(driver, obj, test_flow_steps):
+def transplanted_date_inp(driver, obj, test_flow_steps):
     with allure.step("7. Click Transplanted Date input"):
         if not smart_click(
             driver,
@@ -302,6 +327,17 @@ def inter_crop_short_duration_button(driver, obj, test_flow_steps):
         ):
             pytest.fail("Could not find or click the 'Inter-Crop Short Duration button' field.")
         test_flow_steps.append({"step": "Click inter-crop short duration button", "status": "Success"})
+
+def short_duration_button(driver, obj, test_flow_steps):
+    with allure.step("8. Click Short Duration button"):
+        if not smart_click(
+            driver,
+            "Short Duration button",
+            obj.short_duration_button_xpath,
+            "Short Duration button",
+        ):
+            pytest.fail("Could not find or click the 'Short Duration button' field.")
+        test_flow_steps.append({"step": "Click short duration button", "status": "Success"})
 
 def calendar_ok_button(driver, obj, test_flow_steps):
     with allure.step("9. Click OK on calendar"):

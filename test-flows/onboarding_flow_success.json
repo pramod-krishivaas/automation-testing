@@ -1,9 +1,5 @@
 [
     {
-        "step": "Set device location to 17.390848, 78.092954",
-        "status": "Success"
-    },
-    {
         "step": "Click Add button",
         "status": "Success"
     },
@@ -12,71 +8,19 @@
         "status": "Success"
     },
     {
-        "step": "Enter Farmer Name",
+        "step": "Click Farm village dropdown",
         "status": "Success"
     },
     {
-        "step": "Enter Farmer Phone",
+        "step": "Click Farm village item",
         "status": "Success"
     },
     {
-        "step": "Click Field Agent dropdown",
+        "step": "Click Download Boundary button",
         "status": "Success"
     },
     {
-        "step": "Select Field Agent",
-        "status": "Success"
-    },
-    {
-        "step": "Click Submit button on Add Farmer screen",
-        "status": "Success"
-    },
-    {
-        "step": "Click Draw boundary",
-        "status": "Success"
-    },
-    {
-        "step": "Click Submit button on Add Farm screen",
-        "status": "Success"
-    },
-    {
-        "step": "Click crop name dropdown",
-        "status": "Success"
-    },
-    {
-        "step": "Enter Crop Name",
-        "status": "Success"
-    },
-    {
-        "step": "Click Crop Name item",
-        "status": "Success"
-    },
-    {
-        "step": "Click short duration button",
-        "status": "Success"
-    },
-    {
-        "step": "Click Transplanted button",
-        "status": "Success"
-    },
-    {
-        "step": "Click transplanted date input",
-        "status": "Success"
-    },
-    {
-        "step": "Click OK button on calendar",
-        "status": "Success"
-    },
-    {
-        "step": "Click Submit crop",
-        "status": "Success"
-    },
-    {
-        "step": "Draw Boundary on Map",
-        "status": "Success"
-    },
-    {
-        "step": "Click Save boundary",
+        "step": "Click Submit village",
         "status": "Success"
     }
 ]

@@ -272,7 +272,6 @@ def transplanted_date_inp(driver, obj, test_flow_steps):
             {"step": "Click transplanted date input", "status": "Success"}
         )
 
-
 def sowing_date_input(driver, obj, test_flow_steps):
     with allure.step("8. Click Sowing Date input"):
         if not smart_click(

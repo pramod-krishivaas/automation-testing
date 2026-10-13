@@ -1,34 +1,10 @@
 [
     {
-        "step": "Click Active Farms",
+        "step": "Click Farmer list tab",
         "status": "Success"
     },
     {
-        "step": "Navigation button",
-        "status": "Success"
-    },
-    {
-        "step": "Photo Capture with Comment",
-        "status": "Success"
-    },
-    {
-        "step": "Start Audio Recording",
-        "status": "Success"
-    },
-    {
-        "step": "Stop Audio Recording",
-        "status": "Success"
-    },
-    {
-        "step": "Save Button",
-        "status": "Success"
-    },
-    {
-        "step": "Android back",
-        "status": "Success"
-    },
-    {
-        "step": "Android back",
+        "step": "Click Farmer",
         "status": "Success"
     }
 ]

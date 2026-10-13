@@ -1,8 +1,9 @@
 {
   "_note": "Phone numbers keyed by the role set they are assigned to. Because the unified app redirects by priority (state_client > state_farmer > regular_farmer > regular_client), a role's module tests should prefer a SINGLE-role number so login lands directly on that role's home. Reserve multi-role numbers for exercising the in-app switch. mpin is the 4-digit MPIN for that number.",
   "single_role": {
-    "regular_farmer": { "phone": "7660852538", "mpin": "1234" },
-    "regular_client": { "phone": "7660852538", "mpin": "1234" },
+    "regular_farmer": { "phone": "4524444444", "mpin": "1234" },
+    "fgdregular_farmer": { "phone": "7660852538", "mpin": "1234" },
+    "regular_client": { "phone": "4524444444", "mpin": "1234" },
     "state_farmer":   { "phone": "7660852538", "mpin": "1234" },
     "state_client":   { "phone": "7660852538", "mpin": "1234" }
   },

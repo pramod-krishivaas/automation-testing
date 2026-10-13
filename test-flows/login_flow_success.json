@@ -22,7 +22,7 @@
     {
         "step": "Enter phone number",
         "status": "Success",
-        "value": "7660852538"
+        "value": "4524444444"
     },
     {
         "step": "Click Next after phone number",
@@ -33,7 +33,7 @@
         "status": "Success"
     },
     {
-        "step": "Switched to target app 'Telangana Client'",
+        "step": "Switched to target app 'Field Agent'",
         "status": "Success"
     }
 ]

@@ -1,0 +1,24 @@
+{
+    "accessibility_ids": {
+    },
+    "element_ids": {
+    },
+    "xpath_locators": {
+        "regular_fr_farm_card": "//android.widget.FrameLayout[@resource-id=\"android:id/content\"]/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[5]/android.view.ViewGroup[1]/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[1]/android.widget.ImageView",
+        "regular_fa_farm_card": "//android.widget.FrameLayout[@resource-id=\"android:id/content\"]/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[5]/android.view.ViewGroup[1]/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[1]/android.widget.ImageView",
+        "telangana_fr_farm_card": "//android.widget.FrameLayout[@resource-id=\"android:id/content\"]/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[5]/android.view.ViewGroup[1]/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[3]/android.view.ViewGroup",
+        "telangana_fa_farm_card": "//android.widget.FrameLayout[@resource-id=\"android:id/content\"]/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[5]/android.view.ViewGroup[1]/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[3]/android.view.ViewGroup",
+        "navigation_icon": "//android.view.ViewGroup[@content-desc=\"Navigation\"]", 
+        "image_capture_icon": "//android.view.ViewGroup[@content-desc=\"Photo\"]/com.horcrux.svg.SvgView/com.horcrux.svg.GroupView/com.horcrux.svg.PathView[1]", 
+        "video_capture_icon": "//android.view.ViewGroup[@content-desc=\"Video\"]/com.horcrux.svg.SvgView",
+        "stop_video_capture_icon": "//android.view.ViewGroup[@content-desc=\"00:05\"]/android.widget.ImageView",
+        "audio_capture_icon": "//com.horcrux.svg.RectView",
+        "image_comment_inp": "//android.widget.EditText[@resource-id=\"visual-navigation-set-img-text-text-input\"]",
+        "cancel_image_comment_btn": "//android.view.ViewGroup[@content-desc=\"Cancel\"]",
+        "continue_btn": "//android.view.ViewGroup[@content-desc=\"Continue\"]",
+        "save_btn": "//android.view.ViewGroup[@content-desc=\"Save\"]",
+        "farmer_list_tab": "//android.view.ViewGroup[@content-desc=\" Farmer\"]",
+        "farmer": "//android.view.ViewGroup[@content-desc=\"Pramod crop health , +91 4524444444, QA BU\"]"
+
+    }
+}

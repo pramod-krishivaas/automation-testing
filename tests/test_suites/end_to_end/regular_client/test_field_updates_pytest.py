@@ -14,6 +14,9 @@ from tests.pages.regular_client.regular_field_updates_page import (
    stop_video_capture_icon, farmer, farmer_list_tab
 )
 
+from tests.pages.regular_client.regular_client_onboarding_page import (
+    set_run_location
+)
 @allure.epic("Field Updates Flow")
 @allure.feature("Updates")
 class TestFieldUpdates:
@@ -27,9 +30,7 @@ class TestFieldUpdates:
     def test_E2E_RC_005(self, driver):
             test_flow_steps = []
             try:
-                farmer_list_tab(driver, self, test_flow_steps)
-                farmer(driver, self, test_flow_steps)
-                farm_card(driver, self, test_flow_steps)
+                set_run_location(driver, self, test_flow_steps)
                 navigation_icon(driver, self, test_flow_steps)
                 image_capture_icon(driver, self, test_flow_steps)
                 image_comment_input(driver, self, test_flow_steps)

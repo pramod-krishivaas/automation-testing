@@ -1,0 +1,20 @@
+{
+    "accessibility_ids": {
+    },
+    "element_ids": {
+        "date_minus": "date-slider-control-previous-date-button",
+        "date_plus": "date-slider-control-next-date-button"
+
+    },
+    "xpath_locators": {
+        "crop_health_title": "//*[contains(@text, 'Crop Health') or contains(@content-desc, 'Crop Health')] | //android.widget.TextView[@resource-id=\"crop-health-horti-crop-health-text\"]",
+        "last_update_date": "//*[contains(@text, 'Last Update Date') or contains(@content-desc, 'Last Update Date')]",
+        "last_clear_image": "//*[contains(@text, 'Last Clear Image') or contains(@content-desc, 'Last Clear Image')]",
+        "legend_no_issue": "//*[contains(@text, 'No issue') or contains(@content-desc, 'No issue')]",
+        "legend_may_be_issue": "//*[contains(@text, 'May be issue') or contains(@content-desc, 'May be issue')]",
+        "selected_date": "//*[contains(@text, ' | Day') or contains(@content-desc, ' | Day')]",
+        "navigation_icon": "//android.view.ViewGroup[@content-desc=\"Navigation\"]",
+        "date_minus": "//android.view.ViewGroup[@resource-id=\"date-slider-control-previous-date-button\"]",
+        "date_plus": "//android.view.ViewGroup[@resource-id=\"date-slider-control-next-date-button\"]"
+    }
+}

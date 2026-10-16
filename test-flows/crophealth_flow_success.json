@@ -1,0 +1,48 @@
+[
+    {
+        "step": "Click Farmer list tab",
+        "status": "Success"
+    },
+    {
+        "step": "Click Farmer",
+        "status": "Success"
+    },
+    {
+        "step": "Click Farm card",
+        "status": "Success"
+    },
+    {
+        "step": "Crop health screen loaded",
+        "status": "Success"
+    },
+    {
+        "step": "Crop health layer shown",
+        "status": "Success",
+        "coverage_pct": 29.43,
+        "dominant": "healthy"
+    },
+    {
+        "step": "Date slider moved until stress pixels appeared",
+        "status": "Success",
+        "from": "12-07-2026",
+        "date": "10-07-2026",
+        "clicks": 2,
+        "stress_regions": {
+            "Caution": 0,
+            "Warning": 0,
+            "Stressed": 0,
+            "Severely Stressed": 2
+        }
+    },
+    {
+        "step": "Stress types detected",
+        "status": "Success",
+        "date": "10-07-2026",
+        "displayed_pct": {
+            "caution": 0.0,
+            "warning": 0.0,
+            "stressed": 0.0,
+            "severely_stressed": 2.56
+        }
+    }
+]

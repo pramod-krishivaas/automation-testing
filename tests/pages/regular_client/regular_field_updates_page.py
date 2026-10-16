@@ -43,7 +43,7 @@ def load_locators_once(self, request):
             raise KeyError(f"Locator '{key}' not found in {locators_path}")
         return value
 
-    request.cls.farm_card_xpath = resolve("regular_fr_farm_card")
+    request.cls.farm_card_xpath = resolve("regular_fa_farm_card")
     request.cls.farmer_list_tab_xpath = resolve("farmer_list_tab")
     request.cls.farmer_xpath = resolve("farmer")
     request.cls.navigation_icon_xpath = resolve("navigation_icon")

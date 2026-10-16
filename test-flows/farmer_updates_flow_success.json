@@ -1,10 +1,42 @@
 [
     {
-        "step": "Click Farmer list tab",
+        "step": "Set device location to 17.274068, 78.234093",
         "status": "Success"
     },
     {
-        "step": "Click Farmer",
+        "step": "Click Navigation icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Image capture icon",
+        "status": "Success"
+    },
+    {
+        "step": "Enter Image Comment",
+        "status": "Success"
+    },
+    {
+        "step": "Click Continue button",
+        "status": "Success"
+    },
+    {
+        "step": "Click Audio capture icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Audio capture icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Video capture icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Stop video capture icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Save button",
         "status": "Success"
     }
 ]

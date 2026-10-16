@@ -5,11 +5,9 @@ import allure
 import pytest
 
 from tests.pages.regular_farmer.regular_farmer_crophealth_page import (
-    load_locators_once, farm_card, crop_health_screen_loaded, crop_health_layer_shown,
-    crop_health_legend_and_dates, date_slider_changes_layer, date_slider_until_stress,
+    load_locators_once, farm_card, crop_health_screen_loaded, crop_health_layer_shown, date_slider_until_stress,
     crop_health_stress_types,
 )
-
 
 def _save_flow(test_flow_steps):
     os.makedirs("test-flows", exist_ok=True)

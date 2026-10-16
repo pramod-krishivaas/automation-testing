@@ -1,0 +1,54 @@
+[
+    {
+        "step": "Click Farm card",
+        "status": "Success"
+    },
+    {
+        "step": "Set device location to 17.345932, 78.102363",
+        "status": "Success"
+    },
+    {
+        "step": "Click Diagnosis icon",
+        "status": "Success"
+    },
+    {
+        "step": "Select crop name",
+        "status": "Success"
+    },
+    {
+        "step": "Click OK button",
+        "status": "Success"
+    },
+    {
+        "step": "Click OK button",
+        "status": "Success"
+    },
+    {
+        "step": "Click OK button",
+        "status": "Success"
+    },
+    {
+        "step": "Click Confirm button",
+        "status": "Success"
+    },
+    {
+        "step": "Click OK button",
+        "status": "Success"
+    },
+    {
+        "step": "Click Camera icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Image capture icon",
+        "status": "Success"
+    },
+    {
+        "step": "Enter Image Comment",
+        "status": "Success"
+    },
+    {
+        "step": "Click Image save button",
+        "status": "Success"
+    }
+]

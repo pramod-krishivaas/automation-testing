@@ -1,0 +1,28 @@
+{
+    "accessibility_ids": {
+    },
+    "element_ids": {
+    },
+    "xpath_locators": {
+        "diagnosis_icon": "//android.view.ViewGroup[@content-desc=\"Diagnosis\"]",
+        "regular_fr_farm_card": "//android.view.ViewGroup[@content-desc=\"Mango , Pramod crop health Farm 2, 4.41 Acre\"]/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[1]/android.widget.ImageView",
+        "navigation_icon": "//android.view.ViewGroup[@content-desc=\"Navigation\"]", 
+        "select_crop_name": "//android.view.ViewGroup[@content-desc=\"Green Chilli, Diagnosis\"]",
+        "ok": "//android.view.ViewGroup[@content-desc=\"OK\"]",
+        "confirm_btn": "//android.view.ViewGroup[@content-desc=\"Confirm\"]",
+        "camera_icon": "//android.widget.ImageView",
+        "image_capture_icon": "//android.widget.FrameLayout[@resource-id=\"android:id/content\"]/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[2]/com.horcrux.svg.SvgView/com.horcrux.svg.GroupView/com.horcrux.svg.PathView[1]", 
+        "video_capture_icon": "//android.widget.FrameLayout[@resource-id=\"android:id/content\"]/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[3]/com.horcrux.svg.SvgView/com.horcrux.svg.GroupView/com.horcrux.svg.PathView[2]",
+        "stop_video_capture_icon": "//android.widget.FrameLayout[@resource-id=\"android:id/content\"]/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[3]/android.widget.ImageView",
+        "audio_capture_icon": "//android.widget.FrameLayout[@resource-id=\"android:id/content\"]/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[2]/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[1]/android.view.ViewGroup/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[2]/com.horcrux.svg.SvgView/com.horcrux.svg.GroupView/com.horcrux.svg.RectView",
+        "audio_stop_icon": "//android.view.ViewGroup[@content-desc=\"00:05:01\"]/com.horcrux.svg.SvgView/com.horcrux.svg.GroupView/com.horcrux.svg.PathView",
+        "image_comment_inp": "//android.widget.EditText[@text=\"Comments\"]",
+        "cancel_image_comment_btn": "//android.view.ViewGroup[@content-desc=\"Cancel\"]",
+        "image_save_btn": "//android.view.ViewGroup[@content-desc=\"Save\"]",
+        "general_comment_inp": "//android.widget.EditText",
+        "general_remark_audio_capture_icon": "//android.widget.FrameLayout[@resource-id=\"android:id/content\"]/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.widget.FrameLayout/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[2]/android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[2]/android.view.ViewGroup/com.horcrux.svg.SvgView/com.horcrux.svg.GroupView/com.horcrux.svg.RectView",
+        "general_remark_audio_stop_icon": "//android.view.ViewGroup[@content-desc=\"00:05:00\"]/com.horcrux.svg.SvgView/com.horcrux.svg.GroupView/com.horcrux.svg.RectView",
+        "back_btn": "//android.view.ViewGroup[@content-desc=\"Back\"]",
+        "submit_btn": "//android.view.ViewGroup[@content-desc=\"Submit\"]"
+    }
+}

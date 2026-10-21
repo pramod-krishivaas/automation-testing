@@ -4,7 +4,7 @@
         "status": "Success"
     },
     {
-        "step": "Set device location to 17.345932, 78.102363",
+        "step": "Set device location to 17.265084, 78.196456",
         "status": "Success"
     },
     {
@@ -13,10 +13,6 @@
     },
     {
         "step": "Select crop name",
-        "status": "Success"
-    },
-    {
-        "step": "Click OK button",
         "status": "Success"
     },
     {
@@ -49,6 +45,22 @@
     },
     {
         "step": "Click Image save button",
+        "status": "Success"
+    },
+    {
+        "step": "Click Camera icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Video capture icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Stop video capture icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Audio capture icon",
         "status": "Success"
     }
 ]

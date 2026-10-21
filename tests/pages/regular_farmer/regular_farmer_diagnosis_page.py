@@ -50,6 +50,7 @@ def load_locators_once(self, request):
     request.cls.ok_btn_xpath = resolve("ok")
     request.cls.confirm_btn_xpath = resolve("confirm_btn")
     request.cls.camera_icon_xpath = resolve("camera_icon")
+    request.cls.camera_icon2_xpath = resolve("camera_icon2")
     request.cls.image_capture_icon_xpath = resolve("image_capture_icon")
     request.cls.video_capture_icon_xpath = resolve("video_capture_icon")
     request.cls.stop_video_capture_icon_xpath = resolve("stop_video_capture_icon")
@@ -121,6 +122,14 @@ def camera_icon(driver, obj, test_flow_steps):
     with allure.step("1. Click Camera icon"):
         if not smart_click(
             driver, "Camera icon", obj.camera_icon_xpath, "Camera icon"
+        ):
+            pytest.fail("Could not find or click the 'Camera icon' button.")
+        test_flow_steps.append({"step": "Click Camera icon", "status": "Success"})
+
+def camera_icon2(driver, obj, test_flow_steps):
+    with allure.step("1. Click Camera icon"):
+        if not smart_click(
+            driver, "Camera icon", obj.camera_icon2_xpath, "Camera icon"
         ):
             pytest.fail("Could not find or click the 'Camera icon' button.")
         test_flow_steps.append({"step": "Click Camera icon", "status": "Success"})

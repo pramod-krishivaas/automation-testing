@@ -1,0 +1,31 @@
+{
+    "accessibility_ids": {
+        "add_farmer_name": "Farmer Name input field, mandatory",
+        "add_farmer_phone": "Phone Number input field, mandatory",
+        "business_unit_dropdown": "(//android.widget.TextView[@text=\"\"])[1]",
+        "search_business_unit": "//android.widget.Button[@content-desc=\"Please select a business unit\"]",
+        "field_agent_dropdown": "(//android.widget.TextView[@text=\"\"])[2]",
+        "field_agent_dropdown_item": "Field Agent dropdown",
+        "submit_button_add_farmer": "Submit",
+        "cancel_button_add_farmer": "Cancel"
+    },
+    "element_ids": {
+        "add_farmer_name": "farmer-name-input",
+        "add_farmer_phone": "phone-number-input",
+        "business_unit_dropdown": "business-unit-dropdown",
+        "search_business_unit": "//android.widget.Button[@content-desc=\"Please select a business unit\"]",
+        "field_agent_dropdown": "(//android.widget.TextView[@text=\"\"])[2]",
+        "submit_button_add_farmer": "submit-input",
+        "cancel_button_add_farmer": "cancel-input"
+    },
+    "xpath_locators": {
+        "add_farmer_name": "//android.widget.EditText[@content-desc=\"Farmer Name input field, mandatory\"]",
+        "add_farmer_phone": "//android.widget.EditText[@content-desc=\"Phone Number input field, mandatory\"]",
+        "business_unit_dropdown": "//android.widget.Button[@content-desc=\"Business Unit dropdown\"]",
+        "search_business_unit": "//android.widget.Button[@content-desc=\"Please select a business unit\"]",
+        "field_agent_dropdown": "//android.widget.Button[@content-desc=\"Field Agent dropdown\"]",
+        "field_agent_dropdown_item": "//android.widget.Button[@content-desc=\"Pramod FA\"]",
+        "submit_button_add_farmer": "//android.view.ViewGroup[@content-desc=\"Submit\"]",
+        "cancel_button_add_farmer": "//android.view.ViewGroup[@content-desc=\"Cancel\"]"
+    }
+}

@@ -1,0 +1,48 @@
+{
+    "accessibility_ids": {
+        "add_button_dashboard": "Add",
+        "add_new_farmer_option": "Add New Farmer",
+        "farm_village_dropdown_button": "Farm Village dropdown",
+        "farm_village_item": "Akinepalli (2710022)",
+        "download_boundary_button": "download_boundary_button",
+        "search_by_bunds_results": "search_by_bunds_results",
+        "only_add_farmer_button": "only_add_farmer_button",
+        "submit_button_farm_villages": "Submit",
+        "search_by_bunds_lat_long_option": "search_by_bunds_lat_long_option",
+        "select_bund": "(//android.view.View[@content-desc=\"Map Marker\"])[4]",
+        "confirm_bunds_selection_button": "Confirm Boundary",
+        "select_survey_button": "select_survey_button",
+        "search_by_survey_number_option": "search_by_survey_number_option"
+    },
+    "element_ids": {
+        "add_button_dashboard": "add_button_dashboard",
+        "add_new_farmer_option": "add_new_farmer_option",
+        "farm_village_dropdown_button": "farm-village-dropdown",
+        "farm_village_item": "farm-village-akinepalli-2710022",
+        "download_boundary_button": "download_boundary_button",
+        "search_by_bunds_results": "search_by_bunds_results",
+        "only_add_farmer_button": "only_add_farmer_button",
+        "submit_button_farm_villages": "submit-input",
+        "search_by_bunds_lat_long_option": "search_by_bunds_lat_long_option",
+        "select_bund": "(//android.view.View[@content-desc=\"Map Marker\"])[4]",
+        "confirm_bunds_selection_button": "confirm_bunds_selection_button",
+        "select_survey_button": "select_survey_button",
+        "search_by_survey_number_option": "search_by_survey_number_option"
+    },
+    "xpath_locators": {
+        "add_button_dashboard": "//android.view.ViewGroup[@content-desc=\"Add\"]",
+        "add_new_farmer_option": "//android.view.ViewGroup[@content-desc=\"Add New Farmer\"]",
+        "farm_village_dropdown_button": "//android.widget.Button[@content-desc=\"Farm Village dropdown\"]",
+        "farm_village_item": "//android.widget.Button[@content-desc=\"Akinepalli (2710022)\"]",
+        "download_boundary_button": "//android.widget.TextView[@text=\"⬇ Download Boundary\"]",
+        "search_by_bunds_results": "//android.widget.TextView[contains(@text,'20')]",
+        "only_add_farmer_button": "//android.view.ViewGroup[@content-desc='Only add farmer']",
+        "submit_button_farm_villages": "//android.view.ViewGroup[@content-desc=\"Submit\"]",
+        "search_by_bunds_lat_long_option": "//android.widget.EditText[@resource-id=\"map-search-input\"]",
+        "search_by_bunds_lat_long_input": "//android.widget.TextView[@text=\"Bund: 581\"]",
+        "select_bund": "(//android.view.View[@content-desc=\"Google Map\"]/android.view.View[@content-desc=\"Map Marker\"])[12]",
+        "confirm_bunds_selection_button": "//android.view.ViewGroup[@content-desc=\"Confirm Boundary\"]",
+        "select_survey_button": "//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup/android.view.ViewGroup[1]/android.view.ViewGroup[1]",
+        "search_by_survey_number_option": "//android.widget.EditText[@text=\"Search by survey, lat-long\"]"
+    }
+}

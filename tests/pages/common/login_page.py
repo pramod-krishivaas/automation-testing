@@ -172,7 +172,7 @@ def do_login(driver, obj, test_flow_steps, phone_number, mpin="1234", handle_per
             picture_permissions,
             login_permissions_location,
             login_permissions_audio,
-            login_permissions_notifications,
+            # login_permissions_notifications,
         ):
             try:
                 step(driver, obj, test_flow_steps)

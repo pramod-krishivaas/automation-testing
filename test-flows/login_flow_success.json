@@ -12,10 +12,6 @@
         "status": "Success"
     },
     {
-        "step": "Allow notifications permission",
-        "status": "Success"
-    },
-    {
         "step": "Click Next on language selection",
         "status": "Success"
     },
@@ -33,7 +29,7 @@
         "status": "Success"
     },
     {
-        "step": "Switched to target app 'Field Agent'",
+        "step": "Switched to target app 'Regular Farmer'",
         "status": "Success"
     }
 ]

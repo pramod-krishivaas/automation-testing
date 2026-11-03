@@ -81,7 +81,7 @@ class TestDiagnosisUpdates:
 def farm_card(driver, obj, test_flow_steps):
     with allure.step("1. Click farm card"):
         if not smart_click(
-            driver, "Farm card", obj.farm_card_xpath, "Farm card"
+            driver, "Farm card", obj.farm_card_xpath, "Mango , Pramod crop health Farm 2, 4.41 Acre"
         ):
             pytest.fail("Could not find or click the 'Farm card' button.")
         test_flow_steps.append({"step": "Click Farm card", "status": "Success"})

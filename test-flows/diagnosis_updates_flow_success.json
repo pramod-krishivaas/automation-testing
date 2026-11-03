@@ -1,18 +1,10 @@
 [
     {
-        "step": "Click Farmer list tab",
-        "status": "Success"
-    },
-    {
-        "step": "Click Farmer",
-        "status": "Success"
-    },
-    {
         "step": "Click Farm card",
         "status": "Success"
     },
     {
-        "step": "Set device location to 17.31, 78.074135",
+        "step": "Set device location to 17.390848, 78.205865",
         "status": "Success"
     },
     {
@@ -21,22 +13,6 @@
     },
     {
         "step": "Select crop name",
-        "status": "Success"
-    },
-    {
-        "step": "Click OK button",
-        "status": "Success"
-    },
-    {
-        "step": "Click OK button",
-        "status": "Success"
-    },
-    {
-        "step": "Click Confirm button",
-        "status": "Success"
-    },
-    {
-        "step": "Click OK button",
         "status": "Success"
     }
 ]

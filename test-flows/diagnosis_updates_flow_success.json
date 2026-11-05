@@ -1,10 +1,18 @@
 [
     {
+        "step": "Click Farmer list tab",
+        "status": "Success"
+    },
+    {
+        "step": "Click Farmer",
+        "status": "Success"
+    },
+    {
         "step": "Click Farm card",
         "status": "Success"
     },
     {
-        "step": "Set device location to 17.283051, 78.130591",
+        "step": "Set device location to 17.274068, 78.168228",
         "status": "Success"
     },
     {

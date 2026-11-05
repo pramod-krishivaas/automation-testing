@@ -45,20 +45,21 @@ class TestDiagnosisUpdates:
                 image_comment_input(driver, self, test_flow_steps)
                 image_save_btn(driver, self, test_flow_steps)
                 time.sleep(3) # Wait for image to be saved
-                camera_icon2(driver, self, test_flow_steps)
+                camera_icon(driver, self, test_flow_steps)
                 video_capture_icon(driver, self, test_flow_steps)
                 time.sleep(3)
                 stop_video_capture_icon(driver, self, test_flow_steps)
 
                 time.sleep(3)
-                # audio_capture_icon(driver, self, test_flow_steps)
-                # time.sleep(3) # Wait for audio recording to complete
-                # audio_stop_icon(driver, self, test_flow_steps)
+                audio_capture_icon(driver, self, test_flow_steps)
+                time.sleep(3) # Wait for audio recording to complete
+                audio_stop_icon(driver, self, test_flow_steps)
                 # time.sleep(2)
                 general_comment_input(driver, self, test_flow_steps)
-                # general_remark_audio_capture_icon(driver, self, test_flow_steps)
+                general_remark_audio_capture_icon(driver, self, test_flow_steps)
                 time.sleep(3) # Wait for audio recording to complete
-                # general_remark_audio_stop_icon(driver, self, test_flow_steps)
+                general_remark_audio_stop_icon(driver, self, test_flow_steps)
+                time.sleep(3)
                 submit_btn(driver, self, test_flow_steps)
 
             finally:

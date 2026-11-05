@@ -46,7 +46,7 @@ def load_locators_once(self, request):
     request.cls.diagnosis_icon_xpath = resolve("diagnosis_icon")
     request.cls.farm_card_xpath = resolve("regular_fr_farm_card")
     request.cls.navigation_icon_xpath = resolve("navigation_icon")
-    request.cls.select_crop_name_xpath = resolve("select_crop_name")
+    request.cls.select_crop_name_xpath = resolve("fr_select_crop_name")
     request.cls.ok_btn_xpath = resolve("ok")
     request.cls.confirm_btn_xpath = resolve("confirm_btn")
     request.cls.camera_icon_xpath = resolve("camera_icon")

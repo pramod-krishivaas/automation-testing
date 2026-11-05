@@ -4,7 +4,7 @@
         "status": "Success"
     },
     {
-        "step": "Set device location to 17.390848, 78.205865",
+        "step": "Set device location to 17.283051, 78.130591",
         "status": "Success"
     },
     {
@@ -13,6 +13,74 @@
     },
     {
         "step": "Select crop name",
+        "status": "Success"
+    },
+    {
+        "step": "Click OK button",
+        "status": "Success"
+    },
+    {
+        "step": "Click OK button",
+        "status": "Success"
+    },
+    {
+        "step": "Click Confirm button",
+        "status": "Success"
+    },
+    {
+        "step": "Click OK button",
+        "status": "Success"
+    },
+    {
+        "step": "Click Camera icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Image capture icon",
+        "status": "Success"
+    },
+    {
+        "step": "Enter Image Comment",
+        "status": "Success"
+    },
+    {
+        "step": "Click Image save button",
+        "status": "Success"
+    },
+    {
+        "step": "Click Camera icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Video capture icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Stop video capture icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Audio capture icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Audio stop icon",
+        "status": "Success"
+    },
+    {
+        "step": "Enter General Comment",
+        "status": "Success"
+    },
+    {
+        "step": "Click General remark audio capture icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click General remark audio stop icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Submit button",
         "status": "Success"
     }
 ]

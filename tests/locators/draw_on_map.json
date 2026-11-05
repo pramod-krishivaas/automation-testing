@@ -1,0 +1,16 @@
+{
+    "accessibility_ids": {
+        "save_boundary_button": "Save Boundary",
+        "draw_boundary_button": "Draw on Map"
+    },
+    "element_ids": {
+        "save_boundary_button": "save-boundary-button",
+        "draw_boundary_button": "draw-on-map-button"
+    },
+    "xpath_locators": {
+        "save_boundary_button": "//android.view.ViewGroup[@content-desc=\"Save Boundary\"]",
+        "draw_boundary_button": "//android.view.ViewGroup[@content-desc=\"Draw on map, 󰗠\"]",
+        "search-input": "//android.widget.EditText[@resource-id=\"location-search-input\"]",
+        "search-result": "//android.view.ViewGroup[@content-desc=\"Medak\"]"
+    }
+}

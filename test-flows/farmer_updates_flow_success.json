@@ -1,34 +1,42 @@
 [
     {
-        "step": "Click Active Farms",
+        "step": "Set device location to 17.274068, 78.234093",
         "status": "Success"
     },
     {
-        "step": "Navigation button",
+        "step": "Click Navigation icon",
         "status": "Success"
     },
     {
-        "step": "Photo Capture with Comment",
+        "step": "Click Image capture icon",
         "status": "Success"
     },
     {
-        "step": "Start Audio Recording",
+        "step": "Enter Image Comment",
         "status": "Success"
     },
     {
-        "step": "Stop Audio Recording",
+        "step": "Click Continue button",
         "status": "Success"
     },
     {
-        "step": "Save Button",
+        "step": "Click Audio capture icon",
         "status": "Success"
     },
     {
-        "step": "Android back",
+        "step": "Click Audio capture icon",
         "status": "Success"
     },
     {
-        "step": "Android back",
+        "step": "Click Video capture icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Stop video capture icon",
+        "status": "Success"
+    },
+    {
+        "step": "Click Save button",
         "status": "Success"
     }
 ]

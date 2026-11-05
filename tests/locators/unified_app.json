@@ -21,7 +21,7 @@
   },
   "switch_control": {
     "_note": "switch_toggle_button = the current-app chip on every home, matched by the dropdown glyph U+F222 so it works for ANY landed role. target_* = entries in the 'Switch App' menu (content-desc like 'Farmer - Regular, >'). Captured live 2026-07-22.",
-    "switch_toggle_button": "//android.view.ViewGroup[contains(@content-desc, \"\uf222\")]",
+    "switch_toggle_button": "//android.widget.TextView[@resource-id=\"active-farm-header-switch-label\"]",
     "target_regular_farmer": "//android.view.ViewGroup[contains(@content-desc, \"Farmer - Regular\")]",
     "target_regular_client": "//android.view.ViewGroup[contains(@content-desc, \"Supervisor - Regular\")]",
     "target_state_farmer": "//android.view.ViewGroup[contains(@content-desc, \"Farmer - State\")]",

@@ -1,32 +1,31 @@
-"""Give each test run's farm boundary its own ground on the "Draw on map" screen.
+"""Draw a farm boundary on the app's "Draw on map" screen.
 
-Primary: move the device's GPS (Appium mock location) to this run's cell in a test
-area, so the map opens there. Fallback, when the app doesn't take the mocked
-location: search the map for a place by name (the search box doesn't accept
-coordinates). Either way the spot is checked on screen before drawing: existing
-boundaries are drawn in the app's green, and a spot showing any is skipped.
+The flow, in order:
+  1. set a known mock location, so the map opens on this run's own ground,
+  2. wait for the map to finish drawing,
+  3. check with OpenCV that no existing boundary (drawn in the app's green) is
+     where this one goes,
+  4. work out the 4 corners relative to the map on screen,
+  5. tap the 4 corners and close the polygon,
+  6. if the ground is taken, search the map for a place by name and try again
+     (the search box takes names, not coordinates).
 """
 import math
-import re
 import sys
 import time
 from datetime import datetime, timezone
 
 import cv2
 import numpy as np
-from appium.webdriver.common.appiumby import AppiumBy
 from selenium.common.exceptions import WebDriverException
 
 from utils.ui_actions import set_input_value
-from utils.wait_utils import _xpath_literal, wait_until_displayed
+from utils.wait_utils import _xpath_literal, wait_for_first_displayed, wait_until_displayed
 
 sys.dont_write_bytecode = True
 
 SLOT_EPOCH = datetime(2026, 1, 1, tzinfo=timezone.utc)
 METRES_PER_DEG_LAT = 111320.0
-# The map screen's header: "Lat: 17.4401", "Lon: 78.3992" (the location the app sees).
-APP_LAT_XPATH = '//*[starts-with(@text, "Lat:")]'
-APP_LON_XPATH = '//*[starts-with(@text, "Lon:")]'
 # Existing boundaries: RGB (23, 163, 74) = OpenCV HSV (71, 219, 163); the range
 # includes the paler anti-aliased edges of the lines. Trees are far darker and
 # fields yellower, so satellite imagery doesn't match.
@@ -35,7 +34,7 @@ BOUNDARY_HSV_HIGH = (82, 255, 255)
 BOUNDARY_PX_ALLOWED = 25  # stray pixels; one line across the spot is hundreds
 
 
-# ── test-area cells ──────────────────────────────────────────────────────────
+# ── 1. a known mock location, one cell per run ───────────────────────────────
 def _spiral_cell(n):
     """(column, row) of cell `n` in a square spiral around (0, 0): cell 0 is the
     centre, cells 1-8 ring 1, cells 9-24 ring 2, and so on."""
@@ -61,8 +60,7 @@ def cells_for_run(rings, when=None):
     """Cell numbers to try, in order, for a run starting now.
 
     Starts at the cell for the current minute, so runs on different laptops or in
-    CI a minute or more apart start in different cells without sharing any state;
-    the following cells are the next choices when a spot turns out to be taken.
+    CI a minute or more apart start in different cells without sharing any state.
     """
     total = (2 * rings + 1) ** 2
     minute = run_minute(when)
@@ -77,14 +75,13 @@ def cell_location(center, cell, cell_m):
     return round(lat0 + row * cell_m / METRES_PER_DEG_LAT, 6), round(lng0 + col * cell_m / metres_per_deg_lng, 6)
 
 
-# ── device location (Appium mock GPS) ────────────────────────────────────────
 def set_device_location(driver, lat, lng):
     """Mock the device's GPS at (lat, lng). True if Appium accepted it.
 
     Emulators take it via `geo fix`; real phones via the Appium Settings app,
     which UiAutomator2 allows as the mock location app at session start (some
     phones, e.g. MIUI, need Developer options > Select mock location app >
-    Appium Settings once). Whether the app picked it up is checked separately.
+    Appium Settings once).
     """
     try:
         driver.execute_script("mobile: setGeolocation", {"latitude": lat, "longitude": lng, "altitude": 500})
@@ -95,7 +92,7 @@ def set_device_location(driver, lat, lng):
             print(f"[location] could not mock the GPS: {e.msg if hasattr(e, 'msg') else e}")
             return False
     try:
-        # Push the new fix through Google Play Services so apps see it straight away.
+        # Push the new fix through Google Play services so apps see it straight away.
         driver.execute_script("mobile: refreshGpsCache", {"timeoutMs": 10000})
     except WebDriverException:
         pass
@@ -112,39 +109,7 @@ def reset_device_location(driver):
         pass  # not supported on emulators; CI's emulator is thrown away after the run
 
 
-def app_location(driver):
-    """(lat, lng) shown in the map screen's header, or None if it isn't readable."""
-    values = []
-    for xpath in (APP_LAT_XPATH, APP_LON_XPATH):
-        try:
-            texts = [el.text for el in driver.find_elements(AppiumBy.XPATH, xpath) if el.is_displayed()]
-        except WebDriverException:
-            return None
-        number = re.search(r"-?\d+(?:\.\d+)?", texts[0]) if texts else None
-        if not number:
-            return None
-        values.append(float(number.group()))
-    return tuple(values)
-
-
-def wait_for_app_location(driver, lat, lng, timeout=20, tolerance_deg=0.0005):
-    """Wait until the app shows (lat, lng) (the header rounds to 4 decimals).
-    Returns True (matches), False (shows somewhere else) or None (header not readable)."""
-    deadline = time.time() + timeout
-    seen = None
-    while True:
-        seen = app_location(driver)
-        if seen and abs(seen[0] - lat) <= tolerance_deg and abs(seen[1] - lng) <= tolerance_deg:
-            return True
-        if time.time() >= deadline:
-            if seen is None:
-                return None
-            print(f"[location] the app shows {seen}, not the mocked {lat}, {lng}")
-            return False
-        time.sleep(1)
-
-
-# ── is the spot free? ────────────────────────────────────────────────────────
+# ── 2 and 3. wait for the map, then look for existing boundaries ─────────────
 def _screenshot(driver):
     return cv2.imdecode(np.frombuffer(driver.get_screenshot_as_png(), np.uint8), cv2.IMREAD_COLOR)
 
@@ -155,7 +120,7 @@ def _crop(image, box, margin=0):
     return image[max(y1 - margin, 0):min(y2 + margin, h), max(x1 - margin, 0):min(x2 + margin, w)]
 
 
-def wait_for_map_to_settle(driver, box, timeout=20, min_wait=2.0, poll=1.0):
+def wait_for_map_to_settle(driver, box, timeout=20, min_wait=3.0, poll=1.0):
     """Wait until the map around `box` stops changing (tiles and boundaries drawn)."""
     time.sleep(min_wait)
     deadline = time.time() + timeout
@@ -176,15 +141,29 @@ def boundary_pixels(driver, box, margin=24):
     return int(np.count_nonzero(cv2.inRange(hsv, BOUNDARY_HSV_LOW, BOUNDARY_HSV_HIGH)))
 
 
-# ── where the boundary goes on screen ────────────────────────────────────────
+def area_snapshot(driver, box):
+    """The boundary's area on screen, to compare against later."""
+    return _crop(_screenshot(driver), box)
+
+
+def area_changed(before, after, threshold=0.01):
+    """Did the area change? (whatever colour the app draws a new boundary in)"""
+    if before.shape != after.shape:
+        return True
+    diff = np.abs(after.astype(np.int16) - before.astype(np.int16)).max(axis=2)
+    return float((diff > 40).mean()) > threshold
+
+
+# ── 4. the 4 corners, relative to the map on screen ──────────────────────────
 MAP_XPATH = '//*[@content-desc="Google Map"]'
 # Where the map sits when its view can't be found: measured on the 720x1600 phone
 # (map x 33-687, y 315-1419), as fractions of the screen.
 MAP_SCREEN_FRACTIONS = (33 / 720, 315 / 1600, 688 / 720, 1419 / 1600)
 # The boundary: a rectangle around the map's centre (the device location), as
-# fractions of the map; clear of the search bar (top), the side buttons (top
-# right), the compass (bottom right) and the Google logo (bottom left).
-BOUNDARY_FRACTIONS = (0.27, 0.32, 0.73, 0.68)
+# fractions of the map, well clear of the search bar, the side buttons, the
+# compass and the Google logo. This is the same size as the box drawn by hand on
+# the 720x1600 phone (about 60x80 px); widen it for a larger farm.
+BOUNDARY_FRACTIONS = (0.454, 0.464, 0.546, 0.536)
 
 
 def map_bounds(driver):
@@ -210,77 +189,77 @@ def boundary_corners(driver):
     return [(xa, ya), (xb, ya), (xb, yb), (xa, yb)]
 
 
-# ── drawing the corners ──────────────────────────────────────────────────────
-# Google Maps only counts a tap once no second tap follows within ~300 ms (two
-# quick taps are a double-tap zoom); a quicker next tap cancels the pending one.
+# ── 5. tap the corners and close the polygon ─────────────────────────────────
+# Google Maps counts a tap only once no other tap follows within ~300 ms (two
+# quick taps near each other are a double-tap zoom), so the taps are spaced out.
 TAP_GAP_S = 1.0
+# How long each press lasts. Only a short press is a tap (onMapClick), which is
+# what adds a vertex; from about half a second the map sees a long press, another
+# gesture. If a run draws nothing, the flow tries RETRY_PRESS_MS instead.
+PRESS_MS = 1000
+RETRY_PRESS_MS = 100
+# The map keeps moving for a moment after it centres on the mocked location, and
+# taps while it moves are ignored.
+MAP_MOVE_WAIT_S = 3.0
 
 
-def _tap(driver, x, y):
-    try:
-        driver.execute_script("mobile: clickGesture", {"x": int(x), "y": int(y)})
-    except WebDriverException:
-        driver.tap([(int(x), int(y))], 100)
+def tap_boundary_corners(driver, corners, closing_taps=2, press_ms=PRESS_MS, gap_s=TAP_GAP_S,
+                         wait_before_s=MAP_MOVE_WAIT_S):
+    """Let the map settle on its location, then tap each corner and close the polygon
+    by tapping the first corner `closing_taps` times."""
+    time.sleep(wait_before_s)
+    for x, y in list(corners) + [corners[0]] * closing_taps:
+        driver.tap([(int(x), int(y))], press_ms)
+        time.sleep(gap_s)
+    print(f"[boundary] tapped {len(corners)} corners at {corners} and closed the polygon")
 
 
-def _changed_near(before, after, x, y, radius=30):
-    """Did the screen change around (x, y)? (a new vertex marker drawn there)"""
-    box = (int(x) - radius, int(y) - radius, int(x) + radius, int(y) + radius)
-    a, b = _crop(before, box), _crop(after, box)
-    diff = np.abs(a.astype(np.int16) - b.astype(np.int16)).max(axis=2)
-    return float((diff > 40).mean()) > 0.03
+# ── 6. fallback: search the map for a place by name ──────────────────────────
+_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+_LOWER = "abcdefghijklmnopqrstuvwxyz"
 
 
-def tap_boundary_corners(driver, corners, closing_taps=2, attempts=2, confirm_timeout=2.0):
-    """Tap each corner until it shows on the map, then tap the first corner
-    `closing_taps` times to close the polygon. Returns the taps each corner took.
+def _result_locators(place, result_xpath=None):
+    """Locators for a search result for `place`, most specific first. The search box
+    holds the same text, so EditTexts are excluded."""
+    exact, lowered = _xpath_literal(place), _xpath_literal(place.lower())
 
-    Taps are at least TAP_GAP_S apart so none cancels another. After each tap the
-    screen around the corner is watched for the new vertex; if none appears within
-    `confirm_timeout`s the corner is tapped again (long after the first tap, so
-    it can't turn into a double-tap). Raises AssertionError if a corner never shows.
+    def any_case(attr):
+        return f"contains(translate(@{attr}, '{_UPPER}', '{_LOWER}'), {lowered})"
+
+    return [x for x in (result_xpath,
+                        f"//*[@content-desc={exact} or @text={exact}]",
+                        f"//*[not(self::android.widget.EditText)][{any_case('content-desc')} or {any_case('text')}]") if x]
+
+
+def search_place(driver, search_input_xpath, place, result_xpath=None, timeout=10):
+    """Search the map for `place` and open the first result. True if one was tapped.
+
+    The box is focused and the name typed, so its own change events fire and the
+    results list opens; a result is anything (other than the box) showing that name.
+    If nothing appears, the keyboard's search action is sent before giving up.
     """
-    tries = []
-    for i, (x, y) in enumerate(corners, 1):
-        for attempt in range(1, attempts + 1):
-            before = _screenshot(driver)
-            tapped_at = time.time()
-            _tap(driver, x, y)
-            shown = False
-            while not shown and time.time() - tapped_at < confirm_timeout:
-                time.sleep(0.4)
-                shown = _changed_near(before, _screenshot(driver), x, y)
-            time.sleep(max(0.0, TAP_GAP_S - (time.time() - tapped_at)))
-            if shown:
-                tries.append(attempt)
-                break
-            print(f"[boundary] corner {i} at ({x}, {y}) didn't show on the map; tapping it again")
-        else:
-            raise AssertionError(f"Corner {i} at ({x}, {y}) never showed on the map after {attempts} taps.")
-    for _ in range(closing_taps):
-        _tap(driver, *corners[0])
-        time.sleep(TAP_GAP_S)
-    print(f"[boundary] {len(corners)} corners drawn (taps per corner: {tries}), polygon closed")
-    return tries
-
-
-# ── fallback: search a place by name ─────────────────────────────────────────
-def search_place(driver, search_input_xpath, place, timeout=15):
-    """Search the map for `place` and pick its result. True if a result was tapped."""
-    literal, with_comma = _xpath_literal(place), _xpath_literal(place + ",")
-    result_xpath = f"//*[@content-desc={literal} or starts-with(@content-desc, {with_comma})]"
-    if not set_input_value(driver, search_input_xpath, place, element_name="Search Location"):
+    field = wait_until_displayed(driver, search_input_xpath, timeout=5)
+    if field is None:
+        print("[location] the map's search box is not on screen")
         return False
-    result = wait_until_displayed(driver, result_xpath, timeout=timeout)
+    field.click()  # focus: the results list only opens for the focused box
+    try:
+        field.clear()
+        field.send_keys(place)  # typed, so the app sees each change
+    except WebDriverException:
+        if not set_input_value(driver, search_input_xpath, place, element_name="Search Location"):
+            return False
+    locators = _result_locators(place, result_xpath)
+    name, result = wait_for_first_displayed(driver, locators, timeout=timeout)
     if result is None:
-        # The results list may only open while the box has focus: focus it and retype.
-        field = wait_until_displayed(driver, search_input_xpath, timeout=2)
-        if field is not None:
-            field.click()
-            set_input_value(driver, search_input_xpath, place, element_name="Search Location")
-            result = wait_until_displayed(driver, result_xpath, timeout=timeout)
+        try:  # some screens only search when the keyboard's search key is pressed
+            driver.execute_script("mobile: performEditorAction", {"action": "search"})
+        except WebDriverException:
+            pass
+        name, result = wait_for_first_displayed(driver, locators, timeout=timeout)
     if result is None:
-        print(f"[location] no search result for {place!r}")
+        print(f"[location] no search result for {place!r} (tried {len(locators)} locators)")
         return False
     result.click()
     try:
@@ -288,5 +267,5 @@ def search_place(driver, search_input_xpath, place, timeout=15):
             driver.hide_keyboard()
     except WebDriverException:
         pass
-    print(f"[location] map moved to the search result for {place!r}")
+    print(f"[location] map moved to the search result for {place!r} (locator {name})")
     return True

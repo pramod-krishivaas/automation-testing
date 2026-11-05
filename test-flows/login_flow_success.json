@@ -12,17 +12,13 @@
         "status": "Success"
     },
     {
-        "step": "Allow notifications permission",
-        "status": "Success"
-    },
-    {
         "step": "Click Next on language selection",
         "status": "Success"
     },
     {
         "step": "Enter phone number",
         "status": "Success",
-        "value": "7660852538"
+        "value": "4524444444"
     },
     {
         "step": "Click Next after phone number",
